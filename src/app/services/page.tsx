@@ -20,6 +20,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { BentoCard } from "@/components/ui/BentoCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ServiceOrbit } from "@/components/orbit/ServiceOrbit";
 
 export default function ServicesPage() {
   const [activeMetricTab, setActiveMetricTab] = useState<"pmax" | "rsa" | "demand">("pmax");
@@ -67,6 +68,9 @@ export default function ServicesPage() {
           </motion.p>
         </div>
       </section>
+
+      {/* 1b. 3D SCROLL ORBIT */}
+      <ServiceOrbit />
 
       {/* 2. BENTO GRID (MASONRY / BENTO LAYOUT FOR 4 FEATURES) */}
       <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
