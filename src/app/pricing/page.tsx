@@ -7,6 +7,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { PricingCard } from "@/components/ui/PricingCard";
 import { Accordion } from "@/components/ui/Accordion";
 import { Badge } from "@/components/ui/Badge";
+import { InvestmentStory } from "@/components/pricing/InvestmentStory";
 
 const PRICING_TIERS = [
   {
@@ -294,6 +295,9 @@ export default function PricingPage() {
           ))}
         </div>
       </AnimatedSection>
+
+      {/* 2b. INVESTMENT STORY */}
+      <InvestmentStory />
 
       {/* 3. COMPARISON FEATURE CHECKLIST TABLE */}
       <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
