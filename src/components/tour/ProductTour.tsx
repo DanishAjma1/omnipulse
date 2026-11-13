@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { DashboardMock } from "./DashboardMock";
 import { PortalFrame } from "./PortalFrame";
-import { DASH_H, DASH_W, useWindow, type Progress } from "./timeline";
+import { DASH_H, DASH_W, useRamp, useWindow, type Progress } from "./timeline";
 
-const CAPTIONS: Array<{ text: string; range: [number, number, number, number] }> = [
+const WINDOW_CAPTIONS: Array<{
+  text: string;
+  range: [number, number, number, number];
+}> = [
   { text: "Connect your clients in seconds.", range: [0, 0.02, 0.21, 0.25] },
   {
     text: "Generate full-stack campaigns instantly via the Google Ads API.",
@@ -16,15 +19,44 @@ const CAPTIONS: Array<{ text: string; range: [number, number, number, number] }>
     text: "Monitor real-time ROAS and crawl metrics from a single source of truth.",
     range: [0.5, 0.54, 0.71, 0.75],
   },
-  // Final caption fades in and stays.
-  {
-    text: "Deliver white-labeled, read-only analytics to your clients.",
-    range: [0.77, 0.82, 1.01, 1.02],
-  },
 ];
 
-function Caption({ p, text, range }: { p: Progress; text: string; range: [number, number, number, number] }) {
-  const opacity = useWindow(p, ...range);
+const FINAL_CAPTION = {
+  text: "Deliver white-labeled, read-only analytics to your clients.",
+  range: [0.77, 0.82] as [number, number],
+};
+
+function WindowCaption({
+  p,
+  text,
+  range,
+}: {
+  p: Progress;
+  text: string;
+  range: [number, number, number, number];
+}) {
+  const opacity = useWindow(p, range[0], range[1], range[2], range[3]);
+  const y = useTransform(p, [range[0], range[1]], [16, 0]);
+  return (
+    <motion.p
+      style={{ opacity, y }}
+      className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-6 text-center text-xl font-semibold tracking-tight text-white sm:text-3xl"
+    >
+      {text}
+    </motion.p>
+  );
+}
+
+function FinalCaption({
+  p,
+  text,
+  range,
+}: {
+  p: Progress;
+  text: string;
+  range: [number, number];
+}) {
+  const opacity = useRamp(p, range[0], range[1]);
   const y = useTransform(p, [range[0], range[1]], [16, 0]);
   return (
     <motion.p
@@ -90,9 +122,14 @@ export function ProductTour() {
         </div>
 
         <div className="absolute inset-x-0 bottom-10 h-20">
-          {CAPTIONS.map((c) => (
-            <Caption key={c.text} p={scrollYProgress} {...c} />
+          {WINDOW_CAPTIONS.map((c) => (
+            <WindowCaption key={c.text} p={scrollYProgress} {...c} />
           ))}
+          <FinalCaption
+            p={scrollYProgress}
+            text={FINAL_CAPTION.text}
+            range={FINAL_CAPTION.range}
+          />
         </div>
       </div>
     </div>
