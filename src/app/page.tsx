@@ -21,6 +21,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { BentoCard } from "@/components/ui/BentoCard";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ProductTour } from "@/components/tour/ProductTour";
 
 const CLIENT_LOGOS = [
   { name: "Vanguard Media", metric: "+182% ROAS" },
@@ -361,6 +362,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 2b. STICKY PRODUCT TOUR (scroll-bound) */}
+      <ProductTour />
 
       {/* 3. FEATURES (3-COL GRID) */}
       <AnimatedSection spacing="py-32" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
