@@ -206,72 +206,60 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* SVG Graphic Wave Chart */}
+                    {/* Multi-Series Differentiated Daily Performance Chart */}
                     <div className="h-44 w-full relative flex items-end">
                       <svg
                         className="w-full h-full overflow-visible"
-                        viewBox="0 0 500 150"
+                        viewBox="0 0 520 150"
                         preserveAspectRatio="none"
                       >
-                        <defs>
-                          <linearGradient
-                            id="revenueGrad"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="0%"
-                              stopColor="#6366f1"
-                              stopOpacity="0.4"
-                            />
-                            <stop
-                              offset="100%"
-                              stopColor="#6366f1"
-                              stopOpacity="0.0"
-                            />
-                          </linearGradient>
-                          <linearGradient
-                            id="spendGrad"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="0%"
-                              stopColor="#06b6d4"
-                              stopOpacity="0.25"
-                            />
-                            <stop
-                              offset="100%"
-                              stopColor="#06b6d4"
-                              stopOpacity="0.0"
-                            />
-                          </linearGradient>
-                        </defs>
-                        {/* Area fills */}
-                        <path
-                          d="M0,130 C80,100 140,40 220,65 C300,90 380,30 500,10 L500,150 L0,150 Z"
-                          fill="url(#revenueGrad)"
-                        />
-                        <path
-                          d="M0,140 C80,120 140,85 220,95 C300,110 380,70 500,45 L500,150 L0,150 Z"
-                          fill="url(#spendGrad)"
-                        />
-                        {/* Stroke lines */}
-                        <path
-                          d="M0,130 C80,100 140,40 220,65 C300,90 380,30 500,10"
+                        {[25, 60, 95, 130].map((y) => (
+                          <line
+                            key={y}
+                            x1="34"
+                            x2="508"
+                            y1={y}
+                            y2={y}
+                            stroke="#27272a"
+                            strokeDasharray="2 2"
+                          />
+                        ))}
+                        <text x="28" y="28" fill="#71717a" fontSize="9" textAnchor="end">$6.0K</text>
+                        <text x="28" y="63" fill="#71717a" fontSize="9" textAnchor="end">$4.0K</text>
+                        <text x="28" y="98" fill="#71717a" fontSize="9" textAnchor="end">$2.0K</text>
+                        <text x="28" y="133" fill="#71717a" fontSize="9" textAnchor="end">$0</text>
+
+                        {/* Quote Value (Indigo) */}
+                        <polyline
                           fill="none"
-                          stroke="#818cf8"
-                          strokeWidth="2.5"
+                          stroke="#6366f1"
+                          strokeWidth="2.4"
+                          strokeLinejoin="round"
+                          points="38,126 66,124 94,84 122,86 150,108 178,24 206,120 234,118 262,126 290,38 318,82 346,120 374,70 402,88 430,88 458,122 482,98 506,42"
                         />
-                        <path
-                          d="M0,140 C80,120 140,85 220,95 C300,110 380,70 500,45"
+                        {/* Spend (Emerald) */}
+                        <polyline
                           fill="none"
-                          stroke="#22d3ee"
-                          strokeWidth="2"
+                          stroke="#22c55e"
+                          strokeWidth="2.2"
+                          strokeLinejoin="round"
+                          points="38,112 66,94 94,48 122,54 150,64 178,56 206,82 234,126 262,126 290,66 318,82 346,90 374,90 402,108 430,126 458,124 482,92 506,74"
+                        />
+                        {/* Cost per Quotable Lead (Rose) */}
+                        <polyline
+                          fill="none"
+                          stroke="#f43f5e"
+                          strokeWidth="2.2"
+                          strokeLinejoin="round"
+                          points="38,66 66,18 94,92 122,95 150,88 178,112 206,36 234,126 262,126 290,108 318,104 346,76 374,114 402,118 430,126 458,126 482,112 506,96"
+                        />
+                        {/* Cost per Lead (Amber) */}
+                        <polyline
+                          fill="none"
+                          stroke="#facc15"
+                          strokeWidth="1.8"
+                          strokeLinejoin="round"
+                          points="38,68 66,108 94,118 122,121 150,114 178,122 206,120 234,126 262,124 290,116 318,121 346,120 374,116 402,121 430,126 458,126 482,120 506,115"
                         />
                       </svg>
                     </div>
@@ -547,95 +535,153 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Visual Card Mockup: Ad Manipulation */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
-                <span className="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400">
-                  ACTION • MUTATION PIPELINE
-                </span>
-                <span className="text-xs font-mono text-zinc-400">
-                  STATUS: 200 OK
+            {/* Visual Card Mockup: Google Ads Ad Groups Console Table */}
+            <div className="p-4 sm:p-5 rounded-3xl bg-[#171717] border border-zinc-800 shadow-2xl space-y-3 text-zinc-100">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800">
+                <div className="flex items-center gap-2.5">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#1a73e8] text-white font-bold text-sm">
+                    +
+                  </span>
+                  <div>
+                    <span className="text-xs font-bold text-white">Ad groups</span>
+                    <span className="ml-2 text-[11px] font-mono px-2 py-0.5 rounded bg-[#202124] border border-zinc-700 text-zinc-300">
+                      🔍 UM - INTERNATIONAL
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] font-mono text-zinc-400">
+                  Oct 13 – Nov 11, 2026
                 </span>
               </div>
-              <div className="space-y-3 font-mono text-xs">
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                      Alpha Brand Protection (Search)
-                    </p>
-                    <p className="text-zinc-500">AdGroup: Core Keywords</p>
-                  </div>
-                  <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-                    ENABLED
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                      PMax Retargeting Grid
-                    </p>
-                    <p className="text-zinc-500">AssetGroup: Dynamic Logos & Copy</p>
-                  </div>
-                  <span className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
-                    ACTIVE ($85/d)
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                      Cold Lead Prospecting (Demand Gen)
-                    </p>
-                    <p className="text-zinc-500">Video & Carousel Responsive</p>
-                  </div>
-                  <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold">
-                    PAUSED
-                  </span>
-                </div>
+
+              <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-[#202124]">
+                <table className="w-full text-left text-[11px] font-mono">
+                  <thead className="border-b border-zinc-700/80 bg-[#1b1b1f] text-zinc-300">
+                    <tr>
+                      <th className="py-2.5 px-3">Ad group</th>
+                      <th className="py-2.5 px-2">Status</th>
+                      <th className="py-2.5 px-2">Type</th>
+                      <th className="py-2.5 px-2 text-right">Impr.</th>
+                      <th className="py-2.5 px-2 text-right">CTR</th>
+                      <th className="py-2.5 px-2 text-right">Cost</th>
+                      <th className="py-2.5 px-3 text-right">Conv. rate</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800 text-zinc-200">
+                    <tr>
+                      <td className="py-2.5 px-3 text-blue-400 font-semibold">● UMRAH - DELUXE</td>
+                      <td className="py-2.5 px-2 text-emerald-400">Eligible</td>
+                      <td className="py-2.5 px-2 text-zinc-400">PMax Asset</td>
+                      <td className="py-2.5 px-2 text-right">238,600</td>
+                      <td className="py-2.5 px-2 text-right">7.85%</td>
+                      <td className="py-2.5 px-2 text-right">PKR 96,400</td>
+                      <td className="py-2.5 px-3 text-right text-emerald-400">9.42%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-3 text-blue-400 font-semibold">● BAKU</td>
+                      <td className="py-2.5 px-2 text-rose-400 underline decoration-dotted">
+                        Not eligible (Paused)
+                      </td>
+                      <td className="py-2.5 px-2 text-zinc-400">Standard</td>
+                      <td className="py-2.5 px-2 text-right">19,410</td>
+                      <td className="py-2.5 px-2 text-right">4.18%</td>
+                      <td className="py-2.5 px-2 text-right">PKR 8,120</td>
+                      <td className="py-2.5 px-3 text-right">5.20%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-3 text-blue-400 font-semibold">● all in 1</td>
+                      <td className="py-2.5 px-2 text-rose-400 underline decoration-dotted">
+                        Not eligible (Paused)
+                      </td>
+                      <td className="py-2.5 px-2 text-zinc-400">Standard</td>
+                      <td className="py-2.5 px-2 text-right">11,280</td>
+                      <td className="py-2.5 px-2 text-right">3.91%</td>
+                      <td className="py-2.5 px-2 text-right">PKR 4,650</td>
+                      <td className="py-2.5 px-3 text-right">4.65%</td>
+                    </tr>
+                    <tr className="bg-[#171717] font-bold text-white">
+                      <td className="py-2.5 px-3" colSpan={3}>⌄ Total: Campaign</td>
+                      <td className="py-2.5 px-2 text-right">269,290</td>
+                      <td className="py-2.5 px-2 text-right">7.42%</td>
+                      <td className="py-2.5 px-2 text-right">PKR 109,170</td>
+                      <td className="py-2.5 px-3 text-right text-emerald-400">8.91%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
 
           {/* Row 2: White-labeled Analytics Portal */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Visual Card Mockup (Left) */}
-            <div className="order-2 lg:order-1 p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            {/* Visual Card Mockup (Left) - White Google Ads Executive Report */}
+            <div className="order-2 lg:order-1 p-5 sm:p-6 rounded-3xl bg-white border-2 border-amber-400 shadow-xl space-y-4 text-slate-900">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                    Acme Corp Executive Dashboard
+                  <span className="text-sm font-extrabold text-slate-900">
+                    Google Ads Report
+                  </span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600">
+                    Value &amp; Spend ▾
                   </span>
                 </div>
-                <span className="text-xs font-mono text-zinc-400">
-                  White-label CNAME Active
+                <span className="text-xs font-semibold text-slate-500 border border-slate-200 rounded px-2 py-0.5">
+                  📅 Monthly · Nov 2025
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center py-2">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[10px] uppercase font-mono text-zinc-400">
-                    Clicks
-                  </p>
-                  <p className="text-lg font-bold text-zinc-900 dark:text-white">
-                    49.2K
-                  </p>
+
+              <div className="grid grid-cols-4 gap-2 text-left text-xs">
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-indigo-600 mr-1" />
+                  <span className="font-extrabold text-slate-900">$19.26K</span>
+                  <p className="text-[10px] text-slate-500">Quote Value</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[10px] uppercase font-mono text-zinc-400">
-                    Avg CPC
-                  </p>
-                  <p className="text-lg font-bold text-zinc-900 dark:text-white">
-                    $1.24
-                  </p>
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+                  <span className="font-extrabold text-slate-900">$27.55K</span>
+                  <p className="text-[10px] text-slate-500">Total Spend</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[10px] uppercase font-mono text-zinc-400">
-                    Conv Value
-                  </p>
-                  <p className="text-lg font-bold text-emerald-500">$184.2K</p>
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1" />
+                  <span className="font-extrabold text-slate-900">$95.01</span>
+                  <p className="text-[10px] text-slate-500">Cost / Lead</p>
+                </div>
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1" />
+                  <span className="font-extrabold text-slate-900">$290.02</span>
+                  <p className="text-[10px] text-slate-500">Cost / Quotable</p>
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-300">
-                💡 <span className="font-semibold">Automated Insights:</span> Target ROAS exceeded by +18% following RSA keyword expansion and automated bid leveling.
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+                  <p className="text-[10px] font-semibold text-slate-500">Impression Share</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-0.5">80%</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                    ↑ 50%
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+                  <p className="text-[10px] font-semibold text-slate-500">Click-Through Rate</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-0.5">5.72%</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                    ↑ 33%
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+                  <p className="text-[10px] font-semibold text-slate-500">Cost Per Click</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-0.5">$1.37</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">
+                    ↓ 8%
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200">
+                  <p className="text-[10px] font-semibold text-slate-500">CPM</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-0.5">$7.56</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">
+                    ↑ 22%
+                  </span>
+                </div>
               </div>
             </div>
 

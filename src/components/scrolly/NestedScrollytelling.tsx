@@ -13,7 +13,7 @@ import { MailingPhase } from "./MailingPhase";
 /**
  * Sticky Nested Scrollytelling:
  * - Master Track: <section className="h-[500vh]"> mapped to scrollYProgress (0..1)
- * - Sticky Viewport: top 30% 3D 5-card Revolver (72deg spacing) + bottom 70% w-10/12 Storyboard modal
+ * - Sticky Viewport: top 3D 5-card Revolver (72deg spacing) + bottom w-10/12 Storyboard modal
  */
 export function NestedScrollytelling() {
   const trackRef = useRef<HTMLElement>(null);
@@ -35,11 +35,11 @@ export function NestedScrollytelling() {
           className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[440px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-[130px] dark:bg-indigo-600/15"
         />
 
-        {/* Top 30%: 3D Revolver */}
+        {/* Top: 3D Revolver (Front card sits at Z=0 with filter:none for razor-sharp text) */}
         <Revolver p={scrollYProgress} />
 
-        {/* Bottom 70%: Storyboard Modal with strict w-10/12 constraint */}
-        <div className="relative mx-auto h-[70%] w-10/12 overflow-hidden rounded-3xl border border-zinc-200/80 bg-white/75 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-900/70">
+        {/* Bottom: Storyboard Modal with strict w-10/12 constraint */}
+        <div className="relative mx-auto h-[74%] w-10/12 overflow-hidden rounded-3xl border border-zinc-300/90 bg-zinc-950 shadow-2xl dark:border-white/15">
           <PhaseLayer p={scrollYProgress} start={0} end={0.2}>
             <AdsPhase p={scrollYProgress} />
           </PhaseLayer>

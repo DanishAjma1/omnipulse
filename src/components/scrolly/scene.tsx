@@ -44,19 +44,21 @@ export function PhaseLayer({
 }) {
   const opacity = usePhaseOpacity(p, start, end);
   return (
-    <motion.div style={{ opacity }} className="pointer-events-none absolute inset-0 p-3 sm:p-5">
+    <motion.div style={{ opacity }} className="pointer-events-none absolute inset-0 p-2 sm:p-4">
       {children}
     </motion.div>
   );
 }
 
-/** Shared 800x450 drawing surface. */
+/** High-density 1120x620 drawing surface for crisp tables and multi-series charts. */
 export function Scene({ label, children }: { label: string; children: ReactNode }) {
   return (
     <svg
-      viewBox="0 0 800 450"
+      viewBox="0 0 1120 620"
       preserveAspectRatio="xMidYMid meet"
-      className="h-full w-full"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
+      className="h-full w-full select-none"
       role="img"
       aria-label={label}
     >
@@ -79,10 +81,10 @@ export function Cursor({
   return (
     <motion.g style={{ x: cx, y: cy }}>
       <path
-        d="M0 0 L0 18 L5 14 L9 22 L12 20.5 L8 13 L15 13 Z"
+        d="M0 0 L0 20 L5.5 15.5 L10 24 L13.5 22 L9 14 L17 14 Z"
         fill="#ffffff"
         stroke="#09090b"
-        strokeWidth="1.2"
+        strokeWidth="1.4"
         strokeLinejoin="round"
       />
     </motion.g>
@@ -94,7 +96,7 @@ function TypedChar({ p, char, a, b }: { p: Progress; char: string; a: number; b:
   return <motion.tspan style={{ opacity }}>{char === " " ? "\u00a0" : char}</motion.tspan>;
 }
 
-/** Fake typing: every character fades in one after another across [start, end]. */
+/** Staggered character reveal across [start, end]. */
 export function TypedText({
   p,
   text,
