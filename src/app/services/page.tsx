@@ -40,7 +40,7 @@ export default function ServicesPage() {
             className="inline-flex items-center gap-2 mb-6"
           >
             <Badge variant="brand" dot>
-              Engine Architecture
+              White-Labeling • Local Lead Automation • Enterprise Telemetry
             </Badge>
           </motion.div>
 
@@ -50,9 +50,9 @@ export default function ServicesPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-4xl mx-auto leading-tight"
           >
-            Everything You Need to Scale,{" "}
+            Marketing Infrastructure Engineered for{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
-              Unified.
+              Agencies, Local Growth &amp; Global Brands
             </span>
           </motion.h1>
 
@@ -62,12 +62,46 @@ export default function ServicesPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed"
           >
-            Eliminate fragmented tools. OmniPulse bridges advertising APIs,
-            white-label client reporting, programmatic SEO crawling, and outreach
-            funnels into a single performant operating system.
+            Launch white-label client portals to scale your agency, run
+            hands-off local ads for automated lead generation, and guarantee
+            absolute data ownership with real-time CRM syncing and deep
+            multi-channel analytics.
           </motion.p>
         </div>
       </section>
+
+      {/* 1a. TARGETED PERSONA WORKFLOWS */}
+      <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 space-y-2">
+            <Badge variant="success">For Marketing Agencies</Badge>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+              White-Labeling &amp; Client Portal Scaling
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Give every client a custom-domain client portal with scoped sub-account visibility, automated PDF reporting, and centralized Google Ads MCC management as your retainer roster scales.
+            </p>
+          </div>
+          <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 space-y-2">
+            <Badge variant="brand">For Local Businesses</Badge>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+              Hands-Off Local Ads &amp; Lead Generation
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Launch geo-targeted Search and Performance Max campaigns with automated lead generation funnels, daily spend guardrails, and turnkey call and form capture—zero ad manager complexity required.
+            </p>
+          </div>
+          <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 space-y-2">
+            <Badge variant="neutral">For Global Clients &amp; Brands</Badge>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+              Absolute Data Ownership &amp; CRM Syncing
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Retain 100% ownership of your first-party ad warehouse, developer tokens encrypted via AES-256-GCM, bidirectional HubSpot/CRM syncing, and deep 3-tier attribution analytics.
+            </p>
+          </div>
+        </div>
+      </AnimatedSection>
 
       {/* 1b. STICKY NESTED SCROLLYTELLING */}
       <NestedScrollytelling />
@@ -266,9 +300,9 @@ export default function ServicesPage() {
           <BentoCard
             className="lg:col-span-5 flex flex-col justify-between"
             icon={<BarChart2 className="w-5 h-5" />}
-            badge={<Badge variant="success">White-Label</Badge>}
-            title="Client Portal Management"
-            description="Empower your clients with their own secure branded analytics console. Zero agency backend exposure."
+            badge={<Badge variant="success">White-Label Agency Portals</Badge>}
+            title="White-Label Client Portals & Scaling"
+            description="Scale your marketing agency with white-labeled client portals served under your custom CNAME domain, backed by isolated tenant access and zero backend exposure."
             footer={
               <ul className="space-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
                 <li className="flex items-center gap-2">
@@ -382,9 +416,9 @@ export default function ServicesPage() {
           <BentoCard
             className="lg:col-span-7 flex flex-col justify-between"
             icon={<Send className="w-5 h-5" />}
-            badge={<Badge variant="brand">Growth Automation</Badge>}
-            title="Outreach & Dynamic Funnels"
-            description="Programmatic lead enrichment coupled with AI personalized outreach and high-converting dynamic landing page generation."
+            badge={<Badge variant="brand">Automated Lead Generation</Badge>}
+            title="Hands-Off Local Ads, Outreach & CRM Funnels"
+            description="Combine automated lead generation funnels and hands-off local ad targeting with Resend cold outreach bursts and instant bidirectional CRM syncing."
             footer={
               <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-zinc-500 dark:text-zinc-400">
                 <span className="flex items-center gap-1.5 text-emerald-500">
@@ -627,7 +661,7 @@ export default function ServicesPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button variant="primary" size="lg" href="/register">
-              Start Free Trial
+              Start 7-Day Free Trial
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button variant="secondary" size="lg" href="/pricing">

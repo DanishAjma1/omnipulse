@@ -6,7 +6,6 @@ import {
   ArrowRight,
   TrendingUp,
   BarChart3,
-  Cpu,
   Sparkles,
   Zap,
   Globe,
@@ -50,7 +49,7 @@ export default function HomePage() {
             className="inline-flex items-center gap-2 mb-6"
           >
             <Badge variant="brand" dot>
-              OmniPulse 2.0 • Autonomous Multi-Channel Operations
+              Agencies • Local Businesses • Global Brands
             </Badge>
           </motion.div>
 
@@ -61,9 +60,9 @@ export default function HomePage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-5xl mx-auto leading-[1.1] sm:leading-[1.1]"
           >
-            Take Absolute Control of Your{" "}
+            White-Label Marketing Operations Built to{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 dark:from-indigo-400 dark:via-cyan-300 dark:to-indigo-300">
-              Marketing Operations
+              Scale Every Growth Engine
             </span>
           </motion.h1>
 
@@ -74,9 +73,10 @@ export default function HomePage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed"
           >
-            Unify Google Ads MCC orchestration, Meta campaigns, programmatic SEO
-            auditing, and white-labeled client reporting into one high-velocity
-            intelligence console.
+            Scale marketing agencies with custom white-label client portals,
+            run hands-off local ads and automated lead generation for local
+            businesses, and give global brands absolute data ownership with
+            bidirectional CRM syncing and deep multi-channel analytics.
           </motion.p>
 
           {/* Action Buttons */}
@@ -87,7 +87,7 @@ export default function HomePage() {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button variant="primary" size="lg" href="/register">
-              Start Free 14-Day Trial
+              Start 7-Day Free Trial
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button variant="secondary" size="lg" href="/services">
@@ -354,127 +354,128 @@ export default function HomePage() {
       {/* 2b. STICKY PRODUCT TOUR (scroll-bound) */}
       <ProductTour />
 
-      {/* 3. FEATURES (3-COL GRID) */}
+      {/* 3. PERSONA SOLUTIONS & CORE ENGINE (3-COL GRID) */}
       <AnimatedSection spacing="py-32" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge variant="brand" className="mb-3">
-            Core Engine
+            Built for Three Distinct Growth Models
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            Engineered for Autonomous Agency Scale
+            One Platform. Tailored Precision for Every Team.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-zinc-600 dark:text-zinc-400">
-            Three interconnected layers designed to replace brittle point tools
-            with enterprise-grade precision.
+            Whether you manage dozens of client retainers, automate neighborhood
+            customer acquisition, or govern multi-region enterprise ad telemetry,
+            OmniPulse adapts to your exact operational model.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Feature 1: Ads Sync */}
-          <BentoCard
-            icon={<Cpu className="w-5 h-5" />}
-            badge={<Badge variant="brand">Real-Time Sync</Badge>}
-            title="1. Multi-Account Ads Sync"
-            description="Direct integration with Google Ads MCC and Meta Marketing API. Pulls live and cached metrics without hitting API rate limits or leaky burst buffers."
-            footer={
-              <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Full MCC client tree traversal
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Asset Groups, RSAs & Listing Groups
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Instant campaign pause / launch controls
-                </li>
-              </ul>
-            }
-          >
-            <div className="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
-              <div className="text-indigo-600 dark:text-indigo-400 font-semibold">
-                POST /api/v1/analytics/mcc/sync
-              </div>
-              <div className="text-zinc-500">
-                ↳ 48 child accounts synced (0 errors)
-              </div>
-              <div className="text-emerald-600 dark:text-emerald-400">
-                ✓ PMax, Search, Demand Gen validated
-              </div>
-            </div>
-          </BentoCard>
-
-          {/* Feature 2: Client Reporting */}
+          {/* Persona 1: Marketing Agencies */}
           <BentoCard
             icon={<BarChart3 className="w-5 h-5" />}
-            badge={<Badge variant="success">White-Labeled</Badge>}
-            title="2. Client Reporting Matrix"
-            description="Generate customized, white-labeled reporting portals for your clients with granular role-based permissions and zero data leakage."
+            badge={<Badge variant="success">Marketing Agencies</Badge>}
+            title="White-Label Client Portals & Agency Scaling"
+            description="Scale client retainers effortlessly without adding ops headcount. Launch white-labeled client portals on your custom CNAME domain with multi-account Google Ads MCC orchestration and automated executive reports."
             footer={
               <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Custom domain & CNAME mapping
+                  100% white-labeling with custom CNAME &amp; SSL
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Automated PDF & executive summaries
+                  Scoped client portals with role-based permissions
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Client hierarchy drill-down views
+                  Multi-MCC scaling across 50+ sub-accounts
                 </li>
               </ul>
             }
           >
             <div className="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
               <div className="flex justify-between items-center text-zinc-500">
-                <span>Client Access Portal</span>
-                <span className="text-emerald-500">Active</span>
+                <span>White-Label Portal</span>
+                <span className="text-emerald-500">Live SSL</span>
               </div>
               <div className="text-zinc-900 dark:text-zinc-100 font-bold">
-                portal.clientagency.com
+                insights.youragency.com
               </div>
               <div className="text-xs text-zinc-500">
-                Encrypted token authentication
+                48 client workspaces isolated cleanly
               </div>
             </div>
           </BentoCard>
 
-          {/* Feature 3: AI SEO & Outreach */}
+          {/* Persona 2: Local Businesses */}
           <BentoCard
-            icon={<Globe className="w-5 h-5" />}
-            badge={<Badge variant="neutral">Programmatic</Badge>}
-            title="3. AI SEO & Outreach"
-            description="Combine programmatic keyword clustering, Core Web Vitals telemetry, and personalized cold email outreach funnels in a single pipeline."
+            icon={<Zap className="w-5 h-5" />}
+            badge={<Badge variant="brand">Local Businesses</Badge>}
+            title="Automated Lead Generation & Hands-Off Local Ads"
+            description="Stop wasting budget on complex ad dashboards. Deploy hands-off local ads on Google Search and Performance Max paired with conversion-ready landing funnels for predictable, automated lead generation every day."
             footer={
               <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Asynchronous SEO audit worker queues
+                  Hands-off local ads with automated pacing guardrails
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Multi-turn outreach sequencing
+                  Geo-targeted automated lead generation funnels
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Conversion-ready dynamic landing pages
+                  Starter 7-day free trial ready in under 5 minutes
                 </li>
               </ul>
             }
           >
             <div className="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
               <div className="text-cyan-600 dark:text-cyan-400 font-semibold">
-                SEO Audit Score: 98/100
+                LOCAL PMAX &amp; SEARCH AUTOPILOT
               </div>
               <div className="text-zinc-500">
-                ↳ 142 High-intent keyword targets
+                ↳ 184 verified local service leads / 30d
               </div>
-              <div className="text-indigo-600 dark:text-indigo-400">
-                Outreach Open Rate: 68.4%
+              <div className="text-emerald-600 dark:text-emerald-400">
+                ✓ Hands-off bid &amp; budget protection active
+              </div>
+            </div>
+          </BentoCard>
+
+          {/* Persona 3: Global Clients / Brands */}
+          <BentoCard
+            icon={<Globe className="w-5 h-5" />}
+            badge={<Badge variant="neutral">Global Clients &amp; Brands</Badge>}
+            title="Absolute Data Ownership, CRM Syncing & Deep Analytics"
+            description="Own every click, credential, and conversion row. Connect your dedicated Google Ads Developer Token with AES-256-GCM encryption, bidirectional CRM syncing, and deep campaign-to-ad-group analytics."
+            footer={
+              <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Absolute data ownership &amp; warehouse export
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Bidirectional CRM syncing (HubSpot &amp; Webhooks)
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Deep 3-tier Google &amp; Meta ROAS analytics
+                </li>
+              </ul>
+            }
+          >
+            <div className="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
+              <div className="text-indigo-600 dark:text-indigo-400 font-semibold">
+                ZERO-KNOWLEDGE VAULT + CRM SYNC
+              </div>
+              <div className="text-zinc-500">
+                ↳ AES-256-GCM BYO Token · 14ms Telemetry
+              </div>
+              <div className="text-emerald-600 dark:text-emerald-400">
+                ✓ 3-Tier Attribution Synced to Warehouse
               </div>
             </div>
           </BentoCard>
@@ -744,7 +745,7 @@ export default function HomePage() {
               href="/register"
               className="text-base px-8 py-4"
             >
-              Register Now — 14 Days Free
+              Start 7-Day Free Trial
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button
@@ -757,7 +758,7 @@ export default function HomePage() {
             </Button>
           </div>
           <p className="mt-4 text-xs text-zinc-500 font-mono">
-            No credit card required • Instant Google OAuth • Cancel anytime
+            Starts on Starter Free Trial • Instant Google OAuth • Absolute Data Ownership
           </p>
         </div>
       </section>
