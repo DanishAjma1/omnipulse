@@ -20,6 +20,7 @@ import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { BentoCard } from "@/components/ui/BentoCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { NestedScrollytelling } from "@/components/scrolly/NestedScrollytelling";
 
 export default function ServicesPage() {
   const [activeMetricTab, setActiveMetricTab] = useState<"pmax" | "rsa" | "demand">("pmax");
@@ -68,6 +69,9 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      {/* 1b. STICKY NESTED SCROLLYTELLING */}
+      <NestedScrollytelling />
+
       {/* 2. BENTO GRID (MASONRY / BENTO LAYOUT FOR 4 FEATURES) */}
       <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -88,15 +92,15 @@ export default function ServicesPage() {
               </div>
             }
           >
-            {/* Interactive Mock Chart & Metric switcher */}
-            <div className="mt-4 p-5 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-                <div className="flex gap-2">
+            {/* Interactive Multi-Series Chart & Google Ads Table */}
+            <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-[#171717] border border-zinc-800 text-zinc-100 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800">
+                <div className="flex gap-1.5">
                   <button
                     onClick={() => setActiveMetricTab("pmax")}
                     className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
                       activeMetricTab === "pmax"
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-[#1a73e8] text-white font-semibold"
                         : "bg-zinc-800 text-zinc-400 hover:text-white"
                     }`}
                   >
@@ -106,7 +110,7 @@ export default function ServicesPage() {
                     onClick={() => setActiveMetricTab("rsa")}
                     className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
                       activeMetricTab === "rsa"
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-[#1a73e8] text-white font-semibold"
                         : "bg-zinc-800 text-zinc-400 hover:text-white"
                     }`}
                   >
@@ -116,71 +120,144 @@ export default function ServicesPage() {
                     onClick={() => setActiveMetricTab("demand")}
                     className={`px-3 py-1 rounded-lg text-xs font-mono transition-colors ${
                       activeMetricTab === "demand"
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-[#1a73e8] text-white font-semibold"
                         : "bg-zinc-800 text-zinc-400 hover:text-white"
                     }`}
                   >
                     Demand Gen
                   </button>
                 </div>
-                <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-                  <Zap className="w-3 h-3" /> ROAS 4.9x
-                </span>
+                <div className="flex items-center gap-3 text-[11px] font-mono">
+                  <span className="flex items-center gap-1 text-blue-400">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" /> Quote Val
+                  </span>
+                  <span className="flex items-center gap-1 text-emerald-400">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400" /> Spend
+                  </span>
+                  <span className="flex items-center gap-1 text-rose-400">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" /> Cost/Lead
+                  </span>
+                </div>
               </div>
 
-              {/* Mock Chart Area */}
-              <div className="h-36 w-full relative flex items-end pt-2">
+              {/* Heavy Multi-Series Chart with Daily Variance */}
+              <div className="h-40 w-full relative">
                 <svg
                   className="w-full h-full overflow-visible"
-                  viewBox="0 0 400 120"
+                  viewBox="0 0 520 140"
                   preserveAspectRatio="none"
                 >
-                  <defs>
-                    <linearGradient id="pmaxGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d={
-                      activeMetricTab === "pmax"
-                        ? "M0,100 C60,80 120,40 180,60 C240,80 300,20 400,10 L400,120 L0,120 Z"
-                        : activeMetricTab === "rsa"
-                        ? "M0,90 C80,60 160,50 240,40 C320,30 360,20 400,15 L400,120 L0,120 Z"
-                        : "M0,110 C70,100 140,80 210,50 C280,30 350,40 400,25 L400,120 L0,120 Z"
-                    }
-                    fill="url(#pmaxGradient)"
-                    className="transition-all duration-500"
-                  />
-                  <path
-                    d={
-                      activeMetricTab === "pmax"
-                        ? "M0,100 C60,80 120,40 180,60 C240,80 300,20 400,10"
-                        : activeMetricTab === "rsa"
-                        ? "M0,90 C80,60 160,50 240,40 C320,30 360,20 400,15"
-                        : "M0,110 C70,100 140,80 210,50 C280,30 350,40 400,25"
-                    }
+                  {[25, 55, 85, 115].map((y) => (
+                    <line
+                      key={y}
+                      x1="32"
+                      x2="495"
+                      y1={y}
+                      y2={y}
+                      stroke="#2d2e32"
+                      strokeDasharray="2 2"
+                    />
+                  ))}
+                  <text x="26" y="28" fill="#9aa0a6" fontSize="9" textAnchor="end">$6K</text>
+                  <text x="26" y="58" fill="#9aa0a6" fontSize="9" textAnchor="end">$4K</text>
+                  <text x="26" y="88" fill="#9aa0a6" fontSize="9" textAnchor="end">$2K</text>
+                  <text x="26" y="118" fill="#9aa0a6" fontSize="9" textAnchor="end">$0</text>
+
+                  {/* Series 1: Quote Value (Blue) */}
+                  <polyline
                     fill="none"
-                    stroke="#818cf8"
-                    strokeWidth="2.5"
-                    className="transition-all duration-500"
+                    stroke="#4285f4"
+                    strokeWidth="2.2"
+                    strokeLinejoin="round"
+                    points={
+                      activeMetricTab === "pmax"
+                        ? "36,112 62,108 88,74 114,76 140,94 166,22 192,108 218,105 244,112 270,34 296,72 322,106 348,62 374,78 400,78 426,108 452,92 488,40"
+                        : activeMetricTab === "rsa"
+                        ? "36,96 62,64 88,82 114,48 140,72 166,54 192,88 218,42 244,68 270,52 296,30 322,64 348,46 374,58 400,34 426,52 452,38 488,28"
+                        : "36,108 62,92 88,86 114,62 140,78 166,44 192,66 218,84 244,50 270,68 296,42 322,58 348,74 374,48 400,62 426,44 452,54 488,36"
+                    }
+                  />
+                  {/* Series 2: Total Spend (Emerald) */}
+                  <polyline
+                    fill="none"
+                    stroke="#34a853"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    points={
+                      activeMetricTab === "pmax"
+                        ? "36,98 62,82 88,42 114,48 140,56 166,49 192,72 218,112 244,112 270,58 296,72 322,80 348,80 374,95 400,112 426,110 452,84 488,68"
+                        : activeMetricTab === "rsa"
+                        ? "36,104 62,90 88,96 114,76 140,84 166,78 192,94 218,70 244,82 270,74 296,62 322,80 348,72 374,78 400,66 426,74 452,68 488,60"
+                        : "36,112 62,104 88,98 114,88 140,94 166,76 192,84 218,92 244,78 270,86 296,72 322,80 348,88 374,74 400,82 426,72 452,76 488,68"
+                    }
+                  />
+                  {/* Series 3: Cost per Quotable Lead (Rose) */}
+                  <polyline
+                    fill="none"
+                    stroke="#f43f5e"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    points={
+                      activeMetricTab === "pmax"
+                        ? "36,58 62,16 88,82 114,84 140,78 166,96 192,32 218,112 244,112 270,95 296,92 322,68 348,100 374,104 400,112 426,112 452,102 488,88"
+                        : activeMetricTab === "rsa"
+                        ? "36,72 62,88 88,64 114,92 140,78 166,96 192,68 218,94 244,86 270,92 296,98 322,82 348,94 374,88 400,98 426,90 452,96 488,102"
+                        : "36,68 62,74 88,58 114,82 140,66 166,88 192,74 218,62 244,86 270,78 296,90 322,76 348,68 374,88 400,78 426,92 452,84 488,94"
+                    }
+                  />
+                  {/* Series 4: Cost per Lead (Amber) */}
+                  <polyline
+                    fill="none"
+                    stroke="#fbbc04"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                    points="36,60 62,94 88,102 114,105 140,98 166,106 192,105 218,112 244,110 270,103 296,107 322,106 348,103 374,107 400,112 426,112 452,108 488,104"
                   />
                 </svg>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center pt-2 border-t border-zinc-800 text-xs font-mono">
-                <div>
-                  <span className="text-zinc-500">Impressions</span>
-                  <p className="font-bold text-white">418,209</p>
-                </div>
-                <div>
-                  <span className="text-zinc-500">Conv Rate</span>
-                  <p className="font-bold text-emerald-400">7.82%</p>
-                </div>
-                <div>
-                  <span className="text-zinc-500">Target CPA</span>
-                  <p className="font-bold text-indigo-400">$16.40</p>
-                </div>
+              {/* Google Ads Console Style Mini Table */}
+              <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-[#1f2024]">
+                <table className="w-full text-left text-[11px] font-mono">
+                  <thead className="border-b border-zinc-800 bg-[#171717] text-zinc-400">
+                    <tr>
+                      <th className="py-2 px-3">Ad group</th>
+                      <th className="py-2 px-2">Status</th>
+                      <th className="py-2 px-2">Type</th>
+                      <th className="py-2 px-2 text-right">Impr.</th>
+                      <th className="py-2 px-2 text-right">CTR</th>
+                      <th className="py-2 px-2 text-right">Cost</th>
+                      <th className="py-2 px-3 text-right">Conv. rate</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/80 text-zinc-200">
+                    <tr>
+                      <td className="py-2 px-3 text-blue-400 font-medium">● UM - INTL PMAX</td>
+                      <td className="py-2 px-2 text-emerald-400">Eligible</td>
+                      <td className="py-2 px-2 text-zinc-400">PMax Asset</td>
+                      <td className="py-2 px-2 text-right">238,600</td>
+                      <td className="py-2 px-2 text-right">7.85%</td>
+                      <td className="py-2 px-2 text-right">$14,280</td>
+                      <td className="py-2 px-3 text-right text-emerald-400">9.42%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 text-blue-400 font-medium">● BAKU PACKAGES</td>
+                      <td className="py-2 px-2 text-rose-400 underline decoration-dotted">Paused</td>
+                      <td className="py-2 px-2 text-zinc-400">Standard</td>
+                      <td className="py-2 px-2 text-right">148,920</td>
+                      <td className="py-2 px-2 text-right">6.42%</td>
+                      <td className="py-2 px-2 text-right">$8,410</td>
+                      <td className="py-2 px-3 text-right text-emerald-400">8.14%</td>
+                    </tr>
+                    <tr className="bg-[#171717] font-bold text-white">
+                      <td className="py-2 px-3" colSpan={3}>Total: Campaign (Active &amp; Paused)</td>
+                      <td className="py-2 px-2 text-right">387,520</td>
+                      <td className="py-2 px-2 text-right">7.30%</td>
+                      <td className="py-2 px-2 text-right">$22,690</td>
+                      <td className="py-2 px-3 text-right text-emerald-400">8.93%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </BentoCard>
@@ -205,22 +282,56 @@ export default function ServicesPage() {
               </ul>
             }
           >
-            <div className="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between text-zinc-500">
-                <span>PORTAL CONFIGURATION</span>
-                <span className="text-emerald-500">ACTIVE</span>
+            <div className="mt-4 p-4 rounded-2xl bg-white border-2 border-amber-400 text-slate-900 space-y-3 shadow-md">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div>
+                  <span className="text-xs font-extrabold text-slate-900">Google Ads Report</span>
+                  <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">
+                    Value &amp; Spend ▾
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-slate-500">Monthly · Nov 2025</span>
               </div>
-              <div className="p-2.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                <span className="text-zinc-700 dark:text-zinc-300">
-                  insights.apexmarketing.com
-                </span>
-                <Badge variant="neutral" className="text-[10px]">
-                  CNAME
-                </Badge>
+
+              <div className="grid grid-cols-3 gap-2 text-[11px]">
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-indigo-600 mr-1" />
+                  <span className="font-extrabold text-slate-900">$19.26K</span>
+                  <p className="text-[10px] text-slate-500">Quote Value</p>
+                </div>
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+                  <span className="font-extrabold text-slate-900">$27.55K</span>
+                  <p className="text-[10px] text-slate-500">Total Spend</p>
+                </div>
+                <div>
+                  <span className="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1" />
+                  <span className="font-extrabold text-slate-900">$95.01</span>
+                  <p className="text-[10px] text-slate-500">Cost / Lead</p>
+                </div>
               </div>
-              <div className="text-[11px] text-zinc-500 flex items-center justify-between">
-                <span>Permissions: Executive View</span>
-                <span className="text-indigo-400">No Raw API Keys</span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <div className="p-2 rounded-lg border border-slate-200 bg-slate-50/60">
+                  <p className="text-[10px] font-semibold text-slate-500">Impr. Share</p>
+                  <p className="text-sm font-extrabold text-slate-900">80%</p>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1 rounded">↑ 50%</span>
+                </div>
+                <div className="p-2 rounded-lg border border-slate-200 bg-slate-50/60">
+                  <p className="text-[10px] font-semibold text-slate-500">CTR</p>
+                  <p className="text-sm font-extrabold text-slate-900">5.72%</p>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1 rounded">↑ 33%</span>
+                </div>
+                <div className="p-2 rounded-lg border border-slate-200 bg-slate-50/60">
+                  <p className="text-[10px] font-semibold text-slate-500">Avg CPC</p>
+                  <p className="text-sm font-extrabold text-slate-900">$1.37</p>
+                  <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1 rounded">↓ 8%</span>
+                </div>
+                <div className="p-2 rounded-lg border border-slate-200 bg-slate-50/60">
+                  <p className="text-[10px] font-semibold text-slate-500">CPM</p>
+                  <p className="text-sm font-extrabold text-slate-900">$7.56</p>
+                  <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1 rounded">↑ 22%</span>
+                </div>
               </div>
             </div>
           </BentoCard>
