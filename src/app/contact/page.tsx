@@ -22,7 +22,7 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "Google Ads MCC Migration",
+    subject: "Take Full Control Over OmniPulse SaaS",
     message: "",
   });
 
@@ -61,18 +61,20 @@ export default function ContactPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="brand" className="mb-4">
-            Direct Line
+            Take Full Control Over This SaaS
           </Badge>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-4xl mx-auto leading-tight">
-            We&apos;re Here to Help You{" "}
+            Ready to Take{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
-              Scale.
-            </span>
+              Full Control
+            </span>{" "}
+            Over OmniPulse?
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-            Technical questions about our Google Ads engine, custom enterprise
-            integrations, or white-label client portals? Our solutions engineering
-            team responds within 2 hours.
+          <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto">
+            The free BYOK workspace lets you pull up to 5 Google Ads clients, publish 5 live
+            funnels per month, and run 5 SEO website audits per week. Contact our support &amp;
+            solutions engineering team to take full control over this SaaS with uncapped limits or
+            dedicated self-hosted deployment.
           </p>
         </div>
       </section>
@@ -278,17 +280,23 @@ export default function ContactPage() {
                     }
                     className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 text-sm bg-zinc-50/50 dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                   >
+                    <option value="Take Full Control Over OmniPulse SaaS">
+                      Take Full Control Over OmniPulse SaaS (Self-Hosted / Uncapped Ownership)
+                    </option>
+                    <option value="Unlock More Than 5 Google Ads MCC Clients">
+                      Unlock More Than 5 Google Ads MCC Client Accounts
+                    </option>
+                    <option value="Unlock More Than 5 Live Funnels Per Month">
+                      Unlock More Than 5 Live Funnels / Month
+                    </option>
+                    <option value="Unlock More Than 5 SEO Websites Per Week">
+                      Unlock More Than 5 Technical SEO Website Audits / Week
+                    </option>
                     <option value="Google Ads MCC Migration">
                       Google Ads MCC Migration & Token Setup
                     </option>
-                    <option value="Enterprise Custom Token SLA">
-                      Enterprise Custom Token & Data Warehouse SLA
-                    </option>
                     <option value="White-Label Portal Setup">
                       White-Label Client Portal & CNAME Customization
-                    </option>
-                    <option value="Technical Integration / API">
-                      Technical Integration & Rate-Limit Questions
                     </option>
                     <option value="Other">Other Strategic Inquiries</option>
                   </select>

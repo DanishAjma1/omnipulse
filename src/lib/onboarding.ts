@@ -12,30 +12,30 @@ export interface OnboardingTier {
 export const ONBOARDING_TIERS: OnboardingTier[] = [
   {
     id: "STARTER",
-    name: "Starter",
-    monthlyPrice: 49,
-    tagline: "For boutique agencies up to 5 accounts",
-    highlights: ["5 Google & Meta accounts", "Daily metric sync", "1 Branded client portal"],
+    name: "Starter Plan",
+    monthlyPrice: 19,
+    tagline: "Perfect for Solo Freelancers & New Agencies",
+    highlights: ["5 Client Accounts & Portals", "10 AI Campaigns/mo & 3 SEO/day", "200 Emails/day & 3 Funnels/wk"],
   },
   {
     id: "AGENCY_PRO",
-    name: "Agency Pro",
-    monthlyPrice: 149,
-    tagline: "Real-time MCC sync & unlimited portals",
+    name: "Agency Growth Plan",
+    monthlyPrice: 49,
+    tagline: "For Scaling Teams with custom portal domains",
     badge: "Most Popular",
-    highlights: ["Unlimited ad accounts", "15s MCC telemetry sync", "White-label CNAME portals"],
+    highlights: ["20 Client Accounts & Portals", "50 AI Campaigns/mo & 15 SEO/day", "1,000 Emails/day & 15 Funnels/wk"],
   },
   {
     id: "ENTERPRISE",
-    name: "Enterprise",
-    monthlyPrice: 499,
-    tagline: "Multi-MCC clustering & custom SLAs",
-    highlights: ["Dedicated token isolation", "Multi-MCC clustering", "99.99% uptime SLA"],
+    name: "Enterprise Scale Plan",
+    monthlyPrice: 99,
+    tagline: "Unlimited operations & full white-labeling",
+    highlights: ["Unlimited Clients, Portals & Funnels", "50 SEO/day & 5,000 Emails/day", "Full White-Label & Slack Support"],
   },
 ];
 
 export interface OnboardingDraft {
-  step: 1 | 2 | 3;
+  step: 1 | 2;
   email: string;
   otpSent: boolean;
   otpVerified: boolean;
@@ -46,6 +46,7 @@ export interface OnboardingDraft {
   confirmPassword: string;
   mccId: string;
   developerToken: string;
+  geminiApiKey: string;
   planTier: PlanTier;
 }
 
@@ -61,7 +62,8 @@ export const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
   confirmPassword: "",
   mccId: "",
   developerToken: "",
-  planTier: "AGENCY_PRO",
+  geminiApiKey: "",
+  planTier: "STARTER",
 };
 
 export const ONBOARDING_STORAGE_KEY = "omnipulse_onboarding_v1";

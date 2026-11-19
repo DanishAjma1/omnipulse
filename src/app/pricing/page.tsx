@@ -11,61 +11,71 @@ import { InvestmentStory } from "@/components/pricing/InvestmentStory";
 
 const PRICING_TIERS = [
   {
-    name: "Starter",
+    name: "Starter Plan",
+    monthlyPrice: 19,
+    annualPrice: 15,
+    description:
+      "Perfect for Solo Freelancers & New Agencies launching automated Google Ads sync, client portals, and daily outreach.",
+    badge: "Solo & New Agencies",
+    highlighted: false,
+    ctaText: "Get Started with Starter",
+    ctaHref: "/register?tier=STARTER",
+    ctaSubtext: "Start 7-Day Free Trial",
+    features: [
+      "Up to 5 Google Ads Client Accounts Sync",
+      "Real-Time Google Ads MCC Synchronization",
+      "5 White-Labeled Client Portals",
+      "Up to 10 AI-Automated Campaign Creations / month",
+      "3 AI Technical SEO Audits / day",
+      "200 Cold Outreach Emails / day",
+      "Up to 3 AI-Generated Funnels / week",
+      "Standard Template Library",
+      "Community & Email Support",
+    ],
+  },
+  {
+    name: "Agency Growth Plan",
     monthlyPrice: 49,
     annualPrice: 39,
     description:
-      "Built for local businesses and solo operators seeking automated lead generation and hands-off local ads.",
-    badge: "Local Businesses",
-    highlighted: false,
-    ctaText: "Start 7-Day Free Trial",
+      "Built for Scaling Teams needing 20 client portals, custom domains (clients.youragency.com), and higher daily AI quotas.",
+    badge: "Most Popular",
+    highlighted: true,
+    ctaText: "Scale with Agency Growth",
+    ctaHref: "/register?tier=AGENCY_PRO",
+    ctaSubtext: "Start 7-Day Free Trial",
     features: [
-      "Up to 5 Google & Meta Local Ad Accounts",
-      "Hands-Off Local Search & PMax Automation",
-      "Automated Lead Generation Capture Funnels",
-      "1 Branded Reporting Workspace",
-      "Weekly PDF Lead & Spend Summaries",
-      "Email Support (24h SLA)",
+      "Up to 20 Google Ads Client Accounts Sync",
+      "Real-Time Google Ads MCC Synchronization",
+      "20 White-Labeled Client Portals",
+      "Up to 50 AI-Automated Campaign Creations / month",
+      "15 AI Technical SEO Audits / day",
+      "1,000 Cold Outreach Emails / day",
+      "15 AI-Generated Funnels / week",
+      "Custom Domain for Client Portals (clients.youragency.com)",
+      "Priority 24/7 Support",
     ],
   },
   {
-    name: "Agency Pro",
-    monthlyPrice: 149,
-    annualPrice: 119,
+    name: "Enterprise Scale Plan",
+    monthlyPrice: 99,
+    annualPrice: 79,
     description:
-      "Engineered for scaling marketing agencies requiring unlimited white-label client portals, CNAME branding & multi-MCC control.",
-    badge: "Marketing Agencies",
-    highlighted: true,
-    ctaText: "Start 7-Day Free Trial",
+      "For Established Operations demanding unlimited client accounts, portals, campaigns, funnels, and full white-labeling.",
+    badge: "Established Operations",
+    highlighted: false,
+    ctaText: "Deploy Enterprise Scale",
+    ctaHref: "/register?tier=ENTERPRISE",
     features: [
-      "Unlimited Connected Client Ad Accounts",
+      "Unlimited Google Ads Client Accounts Sync",
       "Real-Time Google Ads MCC Synchronization",
       "Unlimited White-Labeled Client Portals",
-      "Custom CNAME & Automatic SSL Mapping",
-      "Performance Max & RSA Bulk Orchestration",
-      "AI Technical SEO Audits & Resend Outreach",
-      "Burst Guard & API Rate-Limit Shield",
-      "Priority Slack Support Channel",
-    ],
-  },
-  {
-    name: "Enterprise",
-    monthlyPrice: 499,
-    annualPrice: 399,
-    description:
-      "For global clients and brands demanding absolute data ownership, bidirectional CRM syncing, and deep multi-region analytics.",
-    badge: "Global Brands",
-    highlighted: false,
-    ctaText: "Contact Sales Engineering",
-    ctaHref: "/contact",
-    features: [
-      "Absolute Data Ownership & BYO Developer Token",
-      "Bidirectional CRM Syncing (HubSpot & Webhooks)",
-      "Direct BigQuery Data Warehouse Pipelines",
-      "Deep 3-Tier Cross-Market Attribution Analytics",
-      "Multi-MCC Organization Clustering",
-      "99.99% Guaranteed API Uptime & SOC-2 Controls",
-      "Dedicated Solutions Architect (24/7 On-Call)",
+      "Unlimited AI-Automated Campaign Creations",
+      "50 AI Technical SEO Audits / day",
+      "5,000 Cold Outreach Emails / day (Utilizing dedicated Resend API pipelines)",
+      "Unlimited AI-Generated Funnels",
+      'Complete Platform White-Labeling (Remove "Powered by Omnipulse")',
+      "Dedicated Slack/WhatsApp Support Channel",
     ],
   },
 ];
@@ -75,115 +85,85 @@ const COMPARISON_FEATURES = [
     category: "Campaign & Ad Operations",
     items: [
       {
+        name: "Google Ads Client Accounts Sync",
+        starter: "Up to 5 Clients",
+        pro: "Up to 20 Clients",
+        enterprise: "Unlimited",
+      },
+      {
         name: "Google Ads MCC Real-Time Sync",
-        starter: "Daily batch",
-        pro: "Real-time (15s)",
-        enterprise: "Real-time (Sub-second)",
-      },
-      {
-        name: "Performance Max & Asset Validation",
-        starter: false,
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Responsive Search Ads (RSA) Builder",
         starter: true,
         pro: true,
         enterprise: true,
       },
       {
-        name: "Demand Gen & Video Formats",
-        starter: false,
-        pro: true,
-        enterprise: true,
+        name: "AI-Automated Campaign Creations",
+        starter: "10 / month",
+        pro: "50 / month",
+        enterprise: "Unlimited",
       },
       {
-        name: "Automated Target CPA / ROAS Enforcer",
-        starter: "Basic",
-        pro: "Advanced",
-        enterprise: "Autonomous AI Engine",
+        name: "Performance Max & RSA Bulk Orchestration",
+        starter: true,
+        pro: true,
+        enterprise: true,
       },
     ],
   },
   {
-    category: "Client Portals & Reporting",
+    category: "Client Portals & White-Labeling",
     items: [
       {
         name: "White-Labeled Client Portals",
-        starter: "1 Portal",
-        pro: "Unlimited",
-        enterprise: "Unlimited Multi-Tenant",
+        starter: "5 Portals",
+        pro: "20 Portals",
+        enterprise: "Unlimited",
       },
       {
-        name: "Custom CNAME & SSL Provisioning",
+        name: "Custom Domain (clients.youragency.com)",
         starter: false,
         pro: true,
         enterprise: true,
       },
       {
-        name: "Role-Based Access (Admin / Viewer)",
-        starter: "Viewer only",
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Executive PDF Digest Automation",
-        starter: "Weekly",
-        pro: "Real-time / Custom",
-        enterprise: "Real-time / Custom",
-      },
-    ],
-  },
-  {
-    category: "SEO & Growth Outreach",
-    items: [
-      {
-        name: "Core Web Vitals & Technical Crawl",
-        starter: "50 URLs / mo",
-        pro: "5,000 URLs / mo",
-        enterprise: "Unlimited Headless",
-      },
-      {
-        name: "Automated Cold Email Sequences",
+        name: 'Remove "Powered by Omnipulse" Branding',
         starter: false,
-        pro: "2,500 sends / mo",
-        enterprise: "50,000+ sends / mo",
-      },
-      {
-        name: "Dynamic Landing Page Generator",
-        starter: false,
-        pro: true,
+        pro: false,
         enterprise: true,
       },
     ],
   },
   {
-    category: "Security & Support",
+    category: "SEO, Outreach & AI Funnels",
     items: [
       {
-        name: "Google OAuth 2.0 Token Vault",
-        starter: true,
-        pro: true,
-        enterprise: true,
+        name: "AI Technical SEO Audits",
+        starter: "3 / day",
+        pro: "15 / day",
+        enterprise: "50 / day",
       },
       {
-        name: "Dedicated Developer Token Routing",
-        starter: false,
-        pro: false,
-        enterprise: true,
+        name: "Cold Outreach Emails",
+        starter: "200 / day",
+        pro: "1,000 / day",
+        enterprise: "5,000 / day (Dedicated Resend)",
       },
       {
-        name: "Support SLA",
-        starter: "24 hours",
-        pro: "2 hours (Slack)",
-        enterprise: "15 min (Dedicated Architect)",
+        name: "AI-Generated Funnels",
+        starter: "3 / week",
+        pro: "15 / week",
+        enterprise: "Unlimited",
       },
+    ],
+  },
+  {
+    category: "Support & Onboarding",
+    items: [
       {
-        name: "Custom SOC-2 / Security Review",
-        starter: false,
-        pro: false,
-        enterprise: true,
+        name: "Support Channel",
+        starter: "Community & Email",
+        pro: "Priority 24/7 Support",
+        enterprise: "Dedicated Slack/WhatsApp",
       },
     ],
   },
@@ -223,7 +203,7 @@ const FAQ_ITEMS = [
 ];
 
 export default function PricingPage() {
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   return (
     <MarketingLayout>
@@ -293,6 +273,7 @@ export default function PricingPage() {
               badge={tier.badge}
               ctaText={tier.ctaText}
               ctaHref={tier.ctaHref}
+              ctaSubtext={tier.ctaSubtext}
             />
           ))}
         </div>
