@@ -140,6 +140,7 @@ export default function RegisterPage() {
       return;
     }
 
+    setDevOtpPreview(null);
     setBusyAction("send_otp");
     try {
       const res = await postOnboardingApi<{
@@ -147,10 +148,12 @@ export default function RegisterPage() {
         email: string;
         expiresInSeconds: number;
         deliveredViaEmail: boolean;
+        provider?: "resend" | null;
         devOtpPreview?: string;
       }>("/onboarding/otp/send", { email: parsed.data });
 
-      setDevOtpPreview(res.devOtpPreview ?? null);
+      // Only expose the hint if Resend is NOT configured; never display a hint when Resend sent the email.
+      setDevOtpPreview(!res.deliveredViaEmail && res.devOtpPreview ? res.devOtpPreview : null);
       updateDraft({
         email: res.email,
         otpSent: true,
@@ -444,10 +447,16 @@ export default function RegisterPage() {
                       onSubmit={handleVerifyOtp}
                       className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60"
                     >
-                      {devOtpPreview && (
+                      {devOtpPreview ? (
                         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-300">
-                          Development preview OTP code:{" "}
+                          Resend is not configured — verification code hint:{" "}
                           <strong className="font-mono tracking-widest">{devOtpPreview}</strong>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
+                          Verification code sent to{" "}
+                          <strong className="font-mono">{draft.email}</strong>. Check your inbox
+                          for the 6-digit code.
                         </div>
                       )}
                       <div>

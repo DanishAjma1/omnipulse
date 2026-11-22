@@ -74,10 +74,10 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="/pricing"
+                  href="/register"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Pricing & Plans
+                  Free BYOK Access
                 </Link>
               </li>
               <li>

@@ -87,7 +87,7 @@ export default function HomePage() {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button variant="primary" size="lg" href="/register">
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button variant="secondary" size="lg" href="/services">
@@ -426,7 +426,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Starter 7-day free trial ready in under 5 minutes
+                  Free BYOK workspace ready in under 5 minutes
                 </li>
               </ul>
             }
@@ -745,20 +745,20 @@ export default function HomePage() {
               href="/register"
               className="text-base px-8 py-4"
             >
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button
               variant="secondary"
               size="lg"
-              href="/pricing"
+              href="/contact"
               className="text-base px-8 py-4"
             >
-              Compare Plans
+              Request Full Control
             </Button>
           </div>
           <p className="mt-4 text-xs text-zinc-500 font-mono">
-            Starts on Starter Free Trial • Instant Google OAuth • Absolute Data Ownership
+            Free BYOK Workspace • No Credit Card Required • Absolute Data Ownership
           </p>
         </div>
       </section>
