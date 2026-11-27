@@ -15,9 +15,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OmniPulse • Enterprise Marketing Operations Platform",
+  metadataBase: new URL("https://omnipulse.io"),
+  title: {
+    default:
+      "OmniPulse • White-Label Agency Operations, Automated Local Ads & Enterprise CRM Analytics",
+    template: "%s | OmniPulse",
+  },
   description:
-    "Take absolute control of your marketing operations with unified Google Ads, Meta campaigns, programmatic SEO, and client reporting.",
+    "Scale marketing agencies with white-label client portals, power automated lead generation and hands-off local ads for local businesses, and deliver absolute data ownership, CRM syncing, and deep analytics for global brands.",
+  keywords: [
+    "white-label client portals",
+    "marketing agency scaling software",
+    "automated lead generation",
+    "hands-off local ads",
+    "absolute data ownership",
+    "CRM syncing marketing analytics",
+    "deep multi-channel analytics",
+    "Google Ads MCC orchestration",
+    "multi-tenant agency console",
+    "programmatic SEO audit software",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://omnipulse.io",
+    siteName: "OmniPulse",
+    title:
+      "OmniPulse • White-Label Client Portals, Automated Local Lead Gen & Enterprise Analytics",
+    description:
+      "The unified marketing operations platform built for scaling marketing agencies, hands-off local business ad automation, and global brands demanding zero-knowledge data ownership and bidirectional CRM syncing.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OmniPulse • Marketing Operations for Agencies, Local Businesses & Global Brands",
+    description:
+      "White-label client portals, automated local ads lead generation, bidirectional CRM syncing, and deep Google & Meta analytics.",
+  },
 };
 
 export default function RootLayout({

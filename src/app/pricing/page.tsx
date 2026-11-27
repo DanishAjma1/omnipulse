@@ -14,16 +14,17 @@ const PRICING_TIERS = [
     name: "Starter",
     monthlyPrice: 49,
     annualPrice: 39,
-    description: "Ideal for boutique agencies managing up to 5 client accounts.",
-    badge: "Boutique",
+    description:
+      "Built for local businesses and solo operators seeking automated lead generation and hands-off local ads.",
+    badge: "Local Businesses",
     highlighted: false,
-    ctaText: "Start 14-Day Free Trial",
+    ctaText: "Start 7-Day Free Trial",
     features: [
-      "Up to 5 Google & Meta Ad Accounts",
-      "Daily Automated Metric Sync",
-      "Standard RSA & Display Creator",
-      "1 Branded Client Portal",
-      "Weekly PDF Report Automation",
+      "Up to 5 Google & Meta Local Ad Accounts",
+      "Hands-Off Local Search & PMax Automation",
+      "Automated Lead Generation Capture Funnels",
+      "1 Branded Reporting Workspace",
+      "Weekly PDF Lead & Spend Summaries",
       "Email Support (24h SLA)",
     ],
   },
@@ -32,18 +33,18 @@ const PRICING_TIERS = [
     monthlyPrice: 149,
     annualPrice: 119,
     description:
-      "Engineered for high-velocity agencies requiring real-time MCC sync & white-label portals.",
-    badge: "Most Popular",
+      "Engineered for scaling marketing agencies requiring unlimited white-label client portals, CNAME branding & multi-MCC control.",
+    badge: "Marketing Agencies",
     highlighted: true,
-    ctaText: "Start 14-Day Free Trial",
+    ctaText: "Start 7-Day Free Trial",
     features: [
-      "Unlimited Connected Ad Accounts",
-      "Real-Time MCC Synchronization",
-      "Performance Max Asset Group Builder",
+      "Unlimited Connected Client Ad Accounts",
+      "Real-Time Google Ads MCC Synchronization",
       "Unlimited White-Labeled Client Portals",
-      "Custom CNAME & SSL Mapping",
-      "AI SEO & Outreach Sequence Engine",
-      "Burst Guard & Rate-Limit Shield",
+      "Custom CNAME & Automatic SSL Mapping",
+      "Performance Max & RSA Bulk Orchestration",
+      "AI Technical SEO Audits & Resend Outreach",
+      "Burst Guard & API Rate-Limit Shield",
       "Priority Slack Support Channel",
     ],
   },
@@ -52,19 +53,19 @@ const PRICING_TIERS = [
     monthlyPrice: 499,
     annualPrice: 399,
     description:
-      "For large performance agencies and holding groups demanding custom token architecture and custom SLAs.",
-    badge: "Enterprise",
+      "For global clients and brands demanding absolute data ownership, bidirectional CRM syncing, and deep multi-region analytics.",
+    badge: "Global Brands",
     highlighted: false,
     ctaText: "Contact Sales Engineering",
     ctaHref: "/contact",
     features: [
-      "Dedicated Enterprise Developer Token",
-      "Custom Data Warehouse Ingestion (BigQuery)",
+      "Absolute Data Ownership & BYO Developer Token",
+      "Bidirectional CRM Syncing (HubSpot & Webhooks)",
+      "Direct BigQuery Data Warehouse Pipelines",
+      "Deep 3-Tier Cross-Market Attribution Analytics",
       "Multi-MCC Organization Clustering",
-      "Dedicated Solutions Architect",
-      "99.99% Guaranteed API Uptime SLA",
-      "Custom Security & SOC-2 Audits",
-      "24/7 Phone & Emergency On-Call",
+      "99.99% Guaranteed API Uptime & SOC-2 Controls",
+      "Dedicated Solutions Architect (24/7 On-Call)",
     ],
   },
 ];
@@ -203,21 +204,21 @@ const FAQ_ITEMS = [
   },
   {
     id: "faq-3",
-    question: "Can my clients see our internal ad spend margins or other client data?",
+    question: "Can my agency white-label client portals on custom domains while scaling?",
     answer:
-      "Never. OmniPulse provides absolute cryptographic tenant isolation. Client portals operate strictly with read-only scoped tokens under your custom domain (e.g. portal.youragency.com), showing only the specific sub-account data and metrics you authorize.",
+      "Yes. OmniPulse provides cryptographic multi-tenant isolation paired with full white-labeling. On Agency Pro and Enterprise, you can connect custom CNAME domains (e.g. insights.youragency.com) with automatic SSL while exposing only the specific client campaigns you authorize.",
   },
   {
     id: "faq-4",
-    question: "Can I switch plans or cancel at any time?",
+    question: "How do global brands maintain absolute data ownership and CRM syncing?",
     answer:
-      "Yes. You can upgrade, downgrade, or cancel your subscription anytime with zero penalty. When switching between monthly and annual plans, your balance is automatically prorated.",
+      "Global organizations bring their own encrypted Google Ads Developer Token and OAuth credentials protected by AES-256-GCM at rest. Combined with bidirectional CRM syncing and BigQuery telemetry exports, you maintain complete data ownership and deep attribution visibility.",
   },
   {
     id: "faq-5",
-    question: "What happens during and after the 14-day free trial?",
+    question: "What happens during and after the 7-day Starter free trial?",
     answer:
-      "During your 14-day trial, you get full access to Agency Pro capabilities. No credit card is charged upfront. At the end of the trial, you can choose the plan that best fits your agency's scale or pause anytime.",
+      "Every workspace begins with a 7-day free trial defaulting to the Starter package—ideal for testing automated local lead generation and campaign orchestration. Before billing cycles end, you can upgrade, downgrade with automatic proration, or cancel cleanly inside Settings.",
   },
 ];
 
@@ -233,17 +234,18 @@ export default function PricingPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="brand" className="mb-4">
-            Predictable Growth
+            Local Businesses • Agencies • Global Brands
           </Badge>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-4xl mx-auto leading-tight">
-            Simple, Scalable Pricing Engineered for{" "}
+            Transparent Pricing Built for{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
-              Agency Growth
+              Agencies, Local Leads &amp; Global Scale
             </span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-            Transparent plans with zero surprise charges. All plans include full
-            API rate-limit protection and our 14-day risk-free trial.
+            Start with a 7-day free trial on Starter for hands-off local ads,
+            upgrade to Agency Pro for white-label client portals, or deploy
+            Enterprise with full CRM syncing and absolute data ownership.
           </p>
 
           {/* Monthly / Annual Toggle */}
