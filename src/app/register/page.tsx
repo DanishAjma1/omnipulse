@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { z } from "zod";
 import {
   Activity,
   ArrowLeft,
@@ -30,30 +29,12 @@ import {
   type PlanTier,
   type StripeSetupSession,
 } from "@/lib/onboarding";
-
-const step2Schema = z
-  .object({
-    fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
-    companyName: z.string().trim().min(2, "Agency / workspace name is required"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Include at least one uppercase letter")
-      .regex(/[0-9]/, "Include at least one number"),
-    confirmPassword: z.string(),
-    mccId: z
-      .string()
-      .trim()
-      .regex(/^\d{3}-?\d{3}-?\d{4}$/, "Enter a valid 10-digit MCC ID (e.g. 123-456-7890)"),
-    developerToken: z
-      .string()
-      .trim()
-      .min(8, "Google Ads Developer Token must be at least 8 characters"),
-  })
-  .refine((v) => v.password === v.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
+import {
+  extractFieldErrors,
+  onboardingStep2Schema,
+  otpSendFormSchema,
+  otpVerifyFormSchema,
+} from "@/lib/validation";
 
 function loadSavedDraft(): OnboardingDraft {
   if (typeof window === "undefined") return DEFAULT_ONBOARDING_DRAFT;
@@ -112,9 +93,9 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    const parsed = z.string().email("Enter a valid work email address").safeParse(draft.email.trim());
+    const parsed = otpSendFormSchema.safeParse({ email: draft.email });
     if (!parsed.success) {
-      setFieldErrors({ email: parsed.error.issues[0]?.message || "Invalid email" });
+      setFieldErrors(extractFieldErrors(parsed.error));
       return;
     }
 
@@ -126,7 +107,7 @@ export default function RegisterPage() {
         expiresInSeconds: number;
         deliveredViaEmail: boolean;
         devOtpPreview?: string;
-      }>("/onboarding/otp/send", { email: parsed.data });
+      }>("/onboarding/otp/send", { email: parsed.data.email });
 
       setDevOtpPreview(res.devOtpPreview ?? null);
       updateDraft({
@@ -148,8 +129,13 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    if (!/^\d{6}$/.test(otpCode.trim())) {
-      setFieldErrors({ otpCode: "Enter the 6-digit verification code" });
+    const parsed = otpVerifyFormSchema.safeParse({
+      email: draft.email,
+      code: otpCode,
+    });
+    if (!parsed.success) {
+      const nextErrors = extractFieldErrors(parsed.error);
+      setFieldErrors({ otpCode: nextErrors.code || nextErrors.email || "Enter the 6-digit verification code" });
       return;
     }
 
@@ -160,8 +146,8 @@ export default function RegisterPage() {
         email: string;
         verificationToken: string;
       }>("/onboarding/otp/verify", {
-        email: draft.email.trim(),
-        code: otpCode.trim(),
+        email: parsed.data.email,
+        code: parsed.data.code,
       });
 
       updateDraft({
@@ -183,7 +169,7 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    const parsed = step2Schema.safeParse({
+    const parsed = onboardingStep2Schema.safeParse({
       fullName: draft.fullName,
       companyName: draft.companyName,
       password: draft.password,
@@ -193,12 +179,7 @@ export default function RegisterPage() {
     });
 
     if (!parsed.success) {
-      const nextErrors: Record<string, string> = {};
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0] ?? "");
-        if (key && !nextErrors[key]) nextErrors[key] = issue.message;
-      }
-      setFieldErrors(nextErrors);
+      setFieldErrors(extractFieldErrors(parsed.error));
       return;
     }
 
@@ -207,6 +188,22 @@ export default function RegisterPage() {
 
   // Step 3A: Initialize Stripe customer & SetupIntent session for chosen tier
   const handleStartStripeCheckout = async (tier: PlanTier = draft.planTier) => {
+    const step2Check = onboardingStep2Schema.safeParse({
+      fullName: draft.fullName,
+      companyName: draft.companyName,
+      password: draft.password,
+      confirmPassword: draft.confirmPassword,
+      mccId: draft.mccId,
+      developerToken: draft.developerToken,
+    });
+    if (!step2Check.success) {
+      setFieldErrors(extractFieldErrors(step2Check.error));
+      setBannerError(
+        step2Check.error.issues[0]?.message ?? "Review your workspace credentials in Step 2 before payment."
+      );
+      updateDraft({ step: 2 });
+      return;
+    }
     setBannerError(null);
     setBusyAction("create_setup");
     try {
