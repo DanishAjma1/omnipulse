@@ -10,6 +10,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { CreditCard, Loader2, Lock, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { toFriendlyCredentialMessage } from "@/lib/friendlyError";
 import type { StripeSetupSession } from "@/lib/onboarding";
 
 interface StripeCardCaptureProps {
@@ -51,12 +52,12 @@ function LiveStripeCardForm({
       });
 
       if (result.error) {
-        setCardError(result.error.message || "Card verification failed");
+        setCardError(toFriendlyCredentialMessage(result.error, "card"));
         return;
       }
 
       if (result.setupIntent?.status !== "succeeded") {
-        setCardError("Additional authentication required — please verify card");
+        setCardError("Additional authentication required — please check your credentials, are they valid?");
         return;
       }
 
@@ -65,9 +66,7 @@ function LiveStripeCardForm({
         setupIntentId: session.setupIntentId,
       });
     } catch (err) {
-      setCardError(
-        err instanceof Error ? err.message : "Failed to complete payment setup"
-      );
+      setCardError(toFriendlyCredentialMessage(err, "card"));
     } finally {
       setConfirming(false);
     }

@@ -80,24 +80,39 @@ export interface StripeSetupSession {
   trialDays: number;
 }
 
+import {
+  toFriendlyCredentialMessage,
+  UserFriendlyError,
+  type FriendlyErrorContext,
+} from "@/lib/friendlyError";
+
 export async function postOnboardingApi<T>(
   path: string,
-  payload: unknown
+  payload: unknown,
+  context: FriendlyErrorContext = "register"
 ): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    throw new UserFriendlyError(toFriendlyCredentialMessage(err, context));
+  }
 
   const json = (await res.json().catch(() => null)) as {
     success?: boolean;
     message?: string;
+    error?: unknown;
     data?: T;
   } | null;
 
   if (!res.ok || !json?.success) {
-    throw new Error(json?.message || `Request failed (${res.status})`);
+    throw new UserFriendlyError(
+      toFriendlyCredentialMessage(json, context, res.status)
+    );
   }
 
   return json.data as T;
