@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { useScroll } from "framer-motion";
+import { useRef, useState } from "react";
+import { useMotionValueEvent, useScroll } from "framer-motion";
 import { Revolver } from "./Revolver";
 import { PhaseLayer } from "./scene";
 import { AdsPhase } from "./AdsPhase";
@@ -10,16 +10,25 @@ import { SeoPhase } from "./SeoPhase";
 import { FunnelsPhase } from "./FunnelsPhase";
 import { MailingPhase } from "./MailingPhase";
 
+const PHASE_LABELS = ["Ads", "Portals", "SEO", "Funnels", "Mailing"] as const;
+
 /**
- * Sticky Nested Scrollytelling:
+ * Sticky Nested Scrollytelling (PLATFORM story — "Service architecture tour"):
  * - Master Track: <section className="h-[500vh]"> mapped to scrollYProgress (0..1)
  * - Sticky Viewport: top 3D 5-card Revolver (72deg spacing) + bottom w-10/12 Storyboard modal
+ * - Phase HUD: side rail showing which of the five services is currently on stage
  */
 export function NestedScrollytelling() {
   const trackRef = useRef<HTMLElement>(null);
+  const [phase, setPhase] = useState(0);
   const { scrollYProgress } = useScroll({
     target: trackRef,
     offset: ["start start", "end end"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const idx = Math.min(PHASE_LABELS.length - 1, Math.max(0, Math.floor(v * PHASE_LABELS.length)));
+    setPhase((prev) => (prev === idx ? prev : idx));
   });
 
   return (
@@ -34,6 +43,33 @@ export function NestedScrollytelling() {
           aria-hidden
           className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[440px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-[130px] dark:bg-indigo-600/15"
         />
+
+        {/* Phase HUD */}
+        <ol
+          aria-label="Service phases"
+          className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 xl:flex"
+        >
+          {PHASE_LABELS.map((label, i) => (
+            <li
+              key={label}
+              className={`flex items-center justify-end gap-2 font-mono text-[11px] transition-colors ${
+                i === phase ? "font-bold text-indigo-500 dark:text-indigo-300" : "text-zinc-400 dark:text-zinc-600"
+              }`}
+            >
+              {label}
+              <span
+                className={`h-2.5 w-2.5 rounded-full border transition-all ${
+                  i === phase
+                    ? "scale-125 border-indigo-500 bg-indigo-500"
+                    : i < phase
+                      ? "border-emerald-500 bg-emerald-500/60"
+                      : "border-zinc-400 dark:border-zinc-700"
+                }`}
+              />
+            </li>
+          ))}
+        </ol>
+
 
         {/* Top: 3D Revolver (Front card sits at Z=0 with filter:none for razor-sharp text) */}
         <Revolver p={scrollYProgress} />
