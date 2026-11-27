@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -21,6 +22,7 @@ import { BentoCard } from "@/components/ui/BentoCard";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ProductTour } from "@/components/tour/ProductTour";
+import { ClosedLoopScrollStory } from "@/components/home/ClosedLoopScrollStory";
 
 const CLIENT_LOGOS = [
   { name: "Vanguard Media", metric: "+182% ROAS" },
@@ -87,7 +89,7 @@ export default function HomePage() {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button variant="primary" size="lg" href="/register">
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button variant="secondary" size="lg" href="/services">
@@ -426,7 +428,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Starter 7-day free trial ready in under 5 minutes
+                  Instant BYOK workspace ready in under 5 minutes
                 </li>
               </ul>
             }
@@ -722,6 +724,88 @@ export default function HomePage() {
         </div>
       </AnimatedSection>
 
+      {/* 4b. CLOSED-LOOP CONSOLIDATION SCROLL STORY (380VH) */}
+      <ClosedLoopScrollStory />
+
+      {/* 4c. COMPLETE AGENCY CONSOLE MODULE DIRECTORY */}
+      <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <Badge variant="brand" className="mb-3">
+            Full SaaS Architecture
+          </Badge>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            Every Module Inside the Agency Console
+          </h2>
+          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
+            Explore interactive documentation and security specs for every
+            production surface built into OmniPulse.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              title: "Google MCC Matrix",
+              desc: "Multi-account child sync, 30-day rolling cache & 01:00 auto-refresh.",
+              href: "/docs#mcc-sync",
+            },
+            {
+              title: "3-Tier Campaign Studio",
+              desc: "Create Search RSAs, PMax Asset Groups & Meta Ad Sets from one form.",
+              href: "/docs#campaign-studio",
+            },
+            {
+              title: "400vh+ Funnel Studio",
+              desc: "3 bespoke templates, click-to-edit sandbox iframe & 3 Vercel Blob slots.",
+              href: "/docs#funnel-studio",
+            },
+            {
+              title: "Worker-Thread SEO",
+              desc: "Non-blocking Chromium/Cheerio site audits + 1-click XML sitemaps.",
+              href: "/docs#seo-engine",
+            },
+            {
+              title: "Resend Cold Outreach",
+              desc: "Burst-safe p-limit(2) sequences + live Svix open/click webhooks.",
+              href: "/docs#outreach-webhooks",
+            },
+            {
+              title: "Admin · Manager · Client",
+              desc: "Optional Manager ops access with strict Billing & Deep-Dive firewall.",
+              href: "/docs#role-simulator",
+            },
+            {
+              title: "Zero-Knowledge Vault",
+              desc: "AES-256-GCM encrypted Developer & OAuth tokens with password gate.",
+              href: "/security",
+            },
+            {
+              title: "Rationed Client Portals",
+              desc: "Custom-domain client dashboards scoped via ClientAdAllocation.",
+              href: "/docs#rbac-portals",
+            },
+          ].map((mod) => (
+            <Link
+              key={mod.title}
+              href={mod.href}
+              className="group p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111113] hover:border-indigo-500/50 transition-all flex flex-col justify-between gap-4"
+            >
+              <div>
+                <h3 className="text-base font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 transition-colors">
+                  {mod.title}
+                </h3>
+                <p className="mt-1.5 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {mod.desc}
+                </p>
+              </div>
+              <span className="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                Inspect Guide <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </AnimatedSection>
+
       {/* 5. CTA SECTION */}
       <section className="py-24 sm:py-32 relative overflow-hidden bg-zinc-950 text-white">
         {/* Glow backdrop */}
@@ -745,7 +829,7 @@ export default function HomePage() {
               href="/register"
               className="text-base px-8 py-4"
             >
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-5 h-5" />
             </Button>
             <Button
@@ -754,11 +838,11 @@ export default function HomePage() {
               href="/pricing"
               className="text-base px-8 py-4"
             >
-              Compare Plans
+              Compare Editions
             </Button>
           </div>
           <p className="mt-4 text-xs text-zinc-500 font-mono">
-            Starts on Starter Free Trial • Instant Google OAuth • Absolute Data Ownership
+            Zero Credit Card Required • Instant Google OAuth • Absolute Data Ownership
           </p>
         </div>
       </section>

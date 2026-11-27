@@ -14,19 +14,28 @@ export function Footer() {
                 <Activity className="w-4 h-4 stroke-[2.5]" />
               </div>
               <span className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">
-                Omni<span className="text-indigo-600 dark:text-indigo-400">Pulse</span>
+                Omni
+                <span className="text-indigo-600 dark:text-indigo-400">
+                  Pulse
+                </span>
               </span>
             </Link>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-sm leading-relaxed">
-              The high-velocity operations engine for multi-channel performance agencies. Automate MCC synchronization, white-labeled client intelligence, and programmatic growth.
+              The closed-loop revenue and ad-operations platform for agencies,
+              local businesses, and global brands. Unify Google Ads MCC,
+              400vh+ Scroll-Story Funnels, Worker-Thread SEO, Resend Outreach,
+              and White-Label Client Portals.
             </p>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 pt-2">
+            <Link
+              href="/security#status"
+              className="inline-flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 hover:text-emerald-500 pt-2 transition-colors"
+            >
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>All Systems Operational • 99.99% API SLA</span>
-            </div>
+            </Link>
           </div>
 
-          {/* Navigation Links */}
+          {/* Platform Links */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200 mb-4">
               Platform
@@ -37,12 +46,20 @@ export function Footer() {
                   href="/services"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Google Ads Engine
+                  Google Ads MCC Engine
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services"
+                  href="/services#funnels"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  400vh+ Funnel Studio
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/docs#rbac-portals"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
                   Client Portal System
@@ -50,55 +67,48 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/services"
+                  href="/docs#seo-engine"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  AI SEO & Outreach
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services#integrations"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  API & Integrations
+                  SEO Crawler &amp; Outreach
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Documentation & Resources */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200 mb-4">
-              Resources
+              Documentation
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="/pricing"
+                  href="/docs"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Pricing & Plans
+                  Console Operator Guide
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/docs#role-simulator"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Documentation
+                  Admin · Manager · Client Roles
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/docs#api-webhooks"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Developer Guides
+                  API &amp; Webhook Reference
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/security#status"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1"
                 >
                   System Status
@@ -108,31 +118,40 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Trust & Enterprise */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200 mb-4">
-              Enterprise
+              Security &amp; Plans
             </h4>
             <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/security"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  Zero-Knowledge Security
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/pricing"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  Pricing &amp; Tiers
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/contact"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Sales Engineering
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/register"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  Get Started
+                  Solutions Engineering
                 </Link>
               </li>
               <li>
                 <span className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  SOC-2 Type II Verified
+                  AES-256-GCM Encrypted
                 </span>
               </li>
             </ul>
@@ -142,14 +161,23 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 dark:text-zinc-400">
           <p>© 2026 OmniPulse Technologies Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/contact" className="hover:text-zinc-900 dark:hover:text-zinc-200">
+            <Link
+              href="/security#privacy"
+              className="hover:text-zinc-900 dark:hover:text-zinc-200"
+            >
               Privacy Policy
             </Link>
-            <Link href="/contact" className="hover:text-zinc-900 dark:hover:text-zinc-200">
+            <Link
+              href="/security#terms"
+              className="hover:text-zinc-900 dark:hover:text-zinc-200"
+            >
               Terms of Service
             </Link>
-            <Link href="/contact" className="hover:text-zinc-900 dark:hover:text-zinc-200">
-              Security
+            <Link
+              href="/security"
+              className="hover:text-zinc-900 dark:hover:text-zinc-200"
+            >
+              Security Architecture
             </Link>
           </div>
         </div>

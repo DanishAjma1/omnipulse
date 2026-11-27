@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Check, Minus } from "lucide-react";
 import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
@@ -8,182 +8,154 @@ import { PricingCard } from "@/components/ui/PricingCard";
 import { Accordion } from "@/components/ui/Accordion";
 import { Badge } from "@/components/ui/Badge";
 import { InvestmentStory } from "@/components/pricing/InvestmentStory";
+import { PricingValueScrollStory } from "@/components/pricing/PricingValueScrollStory";
 
-const PRICING_TIERS = [
+const WORKSPACE_EDITIONS = [
   {
-    name: "Starter",
-    monthlyPrice: 49,
-    annualPrice: 39,
+    name: "Starter (Local & Solo)",
+    priceLabel: "Free BYOK",
+    priceSubtext: "No credit card or subscription checkout required",
     description:
-      "Built for local businesses and solo operators seeking automated lead generation and hands-off local ads.",
+      "Built for local businesses and solo operators launching hands-off local ads, SEO audits, and scroll-story lead funnels.",
     badge: "Local Businesses",
     highlighted: false,
-    ctaText: "Start 7-Day Free Trial",
+    ctaText: "Launch Starter Workspace",
+    ctaHref: "/register",
     features: [
-      "Up to 5 Google & Meta Local Ad Accounts",
-      "Hands-Off Local Search & PMax Automation",
-      "Automated Lead Generation Capture Funnels",
-      "1 Branded Reporting Workspace",
-      "Weekly PDF Lead & Spend Summaries",
-      "Email Support (24h SLA)",
+      "Up to 5 Google & Meta Ad Accounts",
+      "3-Tier Search & PMax Campaign Studio",
+      "400vh+ Scroll-Story Funnel Studio (3 Blob Slots)",
+      "Worker-Thread SEO Crawler & XML Sitemaps",
+      "1 Rationed Client Reporting Portal",
+      "AES-256-GCM Encrypted BYOK Token Vault",
     ],
   },
   {
     name: "Agency Pro",
-    monthlyPrice: 149,
-    annualPrice: 119,
+    priceLabel: "Early Access",
+    priceSubtext: "Included free during BYOK launch • Zero seat tax",
     description:
-      "Engineered for scaling marketing agencies requiring unlimited white-label client portals, CNAME branding & multi-MCC control.",
+      "Engineered for scaling marketing agencies running multi-MCC client rosters, optional Manager staff, and white-label portals.",
     badge: "Marketing Agencies",
     highlighted: true,
-    ctaText: "Start 7-Day Free Trial",
+    ctaText: "Deploy Agency Workspace",
+    ctaHref: "/register",
     features: [
-      "Unlimited Connected Client Ad Accounts",
-      "Real-Time Google Ads MCC Synchronization",
-      "Unlimited White-Labeled Client Portals",
-      "Custom CNAME & Automatic SSL Mapping",
-      "Performance Max & RSA Bulk Orchestration",
-      "AI Technical SEO Audits & Resend Outreach",
-      "Burst Guard & API Rate-Limit Shield",
-      "Priority Slack Support Channel",
+      "Multi-Account Google Ads MCC Hierarchy Sync",
+      "Unlimited Rationed Client Analytics Portals",
+      "Optional Manager Role (Sensitive Surfaces Blocked)",
+      "All 3 Distinct 400vh+ Scroll-Story Funnel Templates",
+      "Unified Resend Cold Outreach + Svix Webhooks",
+      "Nightly 01:00 Auto-Sync & Rate-Limit Shield",
+      "Custom CNAME White-Label Portal Ready",
     ],
   },
   {
-    name: "Enterprise",
-    monthlyPrice: 499,
-    annualPrice: 399,
+    name: "Enterprise & Self-Hosted",
+    priceLabel: "Custom",
+    priceSubtext: "Dedicated cluster, custom quotas & solutions SLA",
     description:
-      "For global clients and brands demanding absolute data ownership, bidirectional CRM syncing, and deep multi-region analytics.",
+      "For global brands and holding companies demanding uncapped multi-MCC clustering, custom integrations, and dedicated SLAs.",
     badge: "Global Brands",
     highlighted: false,
-    ctaText: "Contact Sales Engineering",
+    ctaText: "Contact Solutions Engineering",
     ctaHref: "/contact",
     features: [
-      "Absolute Data Ownership & BYO Developer Token",
-      "Bidirectional CRM Syncing (HubSpot & Webhooks)",
-      "Direct BigQuery Data Warehouse Pipelines",
-      "Deep 3-Tier Cross-Market Attribution Analytics",
-      "Multi-MCC Organization Clustering",
-      "99.99% Guaranteed API Uptime & SOC-2 Controls",
-      "Dedicated Solutions Architect (24/7 On-Call)",
+      "Uncapped Multi-MCC & Sub-Account Quotas",
+      "Dedicated Single-Tenant or Self-Hosted Deployment",
+      "Bidirectional CRM & Data Warehouse Pipelines",
+      "Deep 3-Tier Cross-Market Attribution Ledger",
+      "Custom Webhook & Security Architecture Review",
+      "99.99% Uptime SLA & 2-Hour Engineering Response",
     ],
   },
 ];
 
 const COMPARISON_FEATURES = [
   {
-    category: "Campaign & Ad Operations",
+    category: "Campaign & MCC Ad Operations",
     items: [
       {
-        name: "Google Ads MCC Real-Time Sync",
-        starter: "Daily batch",
-        pro: "Real-time (15s)",
-        enterprise: "Real-time (Sub-second)",
+        name: "Google Ads MCC Hierarchy Sync",
+        starter: "Up to 5 accounts",
+        pro: "Full MCC Roster",
+        enterprise: "Multi-MCC Cluster",
       },
       {
-        name: "Performance Max & Asset Validation",
-        starter: false,
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Responsive Search Ads (RSA) Builder",
+        name: "3-Tier Campaign → Ad Group → RSA / PMax Studio",
         starter: true,
         pro: true,
         enterprise: true,
       },
       {
-        name: "Demand Gen & Video Formats",
+        name: "Meta Campaign → Ad Set → Creative Studio",
+        starter: true,
+        pro: true,
+        enterprise: true,
+      },
+      {
+        name: "Nightly 01:00 Automated Telemetry Refresh",
+        starter: true,
+        pro: true,
+        enterprise: "Custom Cadence",
+      },
+    ],
+  },
+  {
+    category: "400vh+ Funnels, SEO & Outreach",
+    items: [
+      {
+        name: "400vh+ Scroll-Story Templates (12 Removable Acts)",
+        starter: "3 Templates",
+        pro: "Unlimited Funnels",
+        enterprise: "Unlimited + Custom",
+      },
+      {
+        name: "Vercel Blob CDN Image Hosting (Max 3 / Funnel)",
+        starter: true,
+        pro: true,
+        enterprise: true,
+      },
+      {
+        name: "Worker-Thread Technical SEO Crawler & Sitemap XML",
+        starter: "50 URLs / run",
+        pro: "High-Throughput",
+        enterprise: "Uncapped Headless",
+      },
+      {
+        name: "Resend Cold Outreach + Svix Webhook Timeline",
+        starter: "BYOK Domain",
+        pro: "Burst p-limit(2)",
+        enterprise: "Dedicated IP Pool",
+      },
+    ],
+  },
+  {
+    category: "Team Roles, Portals & Zero-Knowledge Security",
+    items: [
+      {
+        name: "AES-256-GCM Encrypted BYOK Token Vault",
+        starter: true,
+        pro: true,
+        enterprise: true,
+      },
+      {
+        name: "Optional Manager Role (Vault & Deep-Dive Blocked)",
         starter: false,
         pro: true,
         enterprise: true,
       },
       {
-        name: "Automated Target CPA / ROAS Enforcer",
-        starter: "Basic",
-        pro: "Advanced",
-        enterprise: "Autonomous AI Engine",
-      },
-    ],
-  },
-  {
-    category: "Client Portals & Reporting",
-    items: [
-      {
-        name: "White-Labeled Client Portals",
+        name: "Rationed Client Portals (ClientAdAllocation)",
         starter: "1 Portal",
         pro: "Unlimited",
-        enterprise: "Unlimited Multi-Tenant",
+        enterprise: "Unlimited CNAME",
       },
       {
-        name: "Custom CNAME & SSL Provisioning",
-        starter: false,
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Role-Based Access (Admin / Viewer)",
-        starter: "Viewer only",
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Executive PDF Digest Automation",
-        starter: "Weekly",
-        pro: "Real-time / Custom",
-        enterprise: "Real-time / Custom",
-      },
-    ],
-  },
-  {
-    category: "SEO & Growth Outreach",
-    items: [
-      {
-        name: "Core Web Vitals & Technical Crawl",
-        starter: "50 URLs / mo",
-        pro: "5,000 URLs / mo",
-        enterprise: "Unlimited Headless",
-      },
-      {
-        name: "Automated Cold Email Sequences",
-        starter: false,
-        pro: "2,500 sends / mo",
-        enterprise: "50,000+ sends / mo",
-      },
-      {
-        name: "Dynamic Landing Page Generator",
-        starter: false,
-        pro: true,
-        enterprise: true,
-      },
-    ],
-  },
-  {
-    category: "Security & Support",
-    items: [
-      {
-        name: "Google OAuth 2.0 Token Vault",
-        starter: true,
-        pro: true,
-        enterprise: true,
-      },
-      {
-        name: "Dedicated Developer Token Routing",
-        starter: false,
-        pro: false,
-        enterprise: true,
-      },
-      {
-        name: "Support SLA",
-        starter: "24 hours",
-        pro: "2 hours (Slack)",
-        enterprise: "15 min (Dedicated Architect)",
-      },
-      {
-        name: "Custom SOC-2 / Security Review",
-        starter: false,
-        pro: false,
-        enterprise: true,
+        name: "Credit Card or Subscription Gate Required",
+        starter: "None",
+        pro: "None",
+        enterprise: "Custom Agreement",
       },
     ],
   },
@@ -192,101 +164,73 @@ const COMPARISON_FEATURES = [
 const FAQ_ITEMS = [
   {
     id: "faq-1",
-    question: "Do I need my own Google Ads Developer Token to use OmniPulse?",
+    question: "Is a credit card or subscription workflow required to launch?",
     answer:
-      "No! OmniPulse comes pre-configured with enterprise-grade Google Ads developer token routing. You simply authenticate via Google OAuth and your accounts sync automatically. Enterprise tier clients also have the option to attach their own custom tokens if desired.",
+      "No. You can launch your OmniPulse workspace right now with zero credit card capture and zero subscription checkout steps. Simply verify your email via 6-digit OTP on /register and connect your encrypted BYOK credentials.",
   },
   {
     id: "faq-2",
-    question: "How does OmniPulse prevent Google Ads API rate-limit errors?",
+    question: "How does Bring-Your-Own-Key (BYOK) keep costs predictable?",
     answer:
-      "Our core dispatcher uses an asynchronous token-bucket rate limiter that paces mutation requests and queues read queries. By caching non-volatile metrics locally and using selective field masks, we eliminate the 'TOO_MANY_REQUESTS' or 'RESOURCE_EXHAUSTED' errors common with standard scripts.",
+      "Instead of marking up your ad spend, email volume, or team seats, OmniPulse connects directly to your own Google Ads Developer Token, Meta System Token, Resend API key, and Vercel Blob store—encrypted at rest with AES-256-GCM.",
   },
   {
     id: "faq-3",
-    question: "Can my agency white-label client portals on custom domains while scaling?",
+    question: "Can I invite Managers without exposing sensitive client financials?",
     answer:
-      "Yes. OmniPulse provides cryptographic multi-tenant isolation paired with full white-labeling. On Agency Pro and Enterprise, you can connect custom CNAME domains (e.g. insights.youragency.com) with automatic SSL while exposing only the specific client campaigns you authorize.",
+      "Yes. Agency Pro and Enterprise support optional Manager accounts that can run daily campaigns, 400vh+ Scroll-Story Funnels, SEO crawls, and Outreach—while strict server-side RBAC blocks access to credential vaults and cross-client financial deep-dives.",
   },
   {
     id: "faq-4",
-    question: "How do global brands maintain absolute data ownership and CRM syncing?",
+    question: "How do Client Portals protect my agency's other accounts?",
     answer:
-      "Global organizations bring their own encrypted Google Ads Developer Token and OAuth credentials protected by AES-256-GCM at rest. Combined with bidirectional CRM syncing and BigQuery telemetry exports, you maintain complete data ownership and deep attribution visibility.",
+      "When you create a Client login in /admin/clients, you grant explicit ClientAdAllocation scopes (one ad account or specific campaigns). Every client analytics request runs enforceClientScope before querying Google or Meta.",
   },
   {
     id: "faq-5",
-    question: "What happens during and after the 7-day Starter free trial?",
+    question: "When should we contact Solutions Engineering for Enterprise?",
     answer:
-      "Every workspace begins with a 7-day free trial defaulting to the Starter package—ideal for testing automated local lead generation and campaign orchestration. Before billing cycles end, you can upgrade, downgrade with automatic proration, or cancel cleanly inside Settings.",
+      "Reach out via /contact if your organization manages multiple top-level Google Ads MCCs, needs custom self-hosted white-label deployment, or requires bespoke data warehouse pipelines.",
   },
 ];
 
 export default function PricingPage() {
-  const [isAnnual, setIsAnnual] = useState(true);
-
   return (
     <MarketingLayout>
-      {/* 1. PRICING HERO */}
+      {/* 1. WORKSPACE EDITIONS HERO */}
       <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
-        {/* Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-indigo-500/15 dark:bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge variant="brand" className="mb-4">
-            Local Businesses • Agencies • Global Brands
+          <Badge variant="success" dot className="mb-4">
+            Zero Credit Card Gate • Instant BYOK Workspace Provisioning
           </Badge>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-4xl mx-auto leading-tight">
-            Transparent Pricing Built for{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
-              Agencies, Local Leads &amp; Global Scale
+            Workspace Editions Built for{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-cyan-500 to-emerald-500 dark:from-indigo-400 dark:via-cyan-300 dark:to-emerald-300">
+              Agencies, Local Growth &amp; Global Brands
             </span>
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-            Start with a 7-day free trial on Starter for hands-off local ads,
-            upgrade to Agency Pro for white-label client portals, or deploy
-            Enterprise with full CRM syncing and absolute data ownership.
+          <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+            Deploy the complete OmniPulse Agency Console with your own encrypted
+            API credentials—no subscription checkout walls, no per-seat taxes,
+            and zero surprise trial auto-charges.
           </p>
-
-          {/* Monthly / Annual Toggle */}
-          <div className="mt-10 inline-flex items-center gap-3 p-1.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <button
-              onClick={() => setIsAnnual(false)}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
-                !isAnnual
-                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
-                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
-              }`}
-            >
-              Monthly Billing
-            </button>
-            <button
-              onClick={() => setIsAnnual(true)}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                isAnnual
-                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
-                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
-              }`}
-            >
-              <span>Annual Billing</span>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/20 text-white">
-                Save 20%
-              </span>
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* 2. PRICING CARDS (3-COL) */}
-      <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 2. EDITION CARDS (3-COL, ZERO SUBSCRIPTION CHECKOUT) */}
+      <AnimatedSection
+        spacing="py-24"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {PRICING_TIERS.map((tier) => (
+          {WORKSPACE_EDITIONS.map((tier) => (
             <PricingCard
               key={tier.name}
               name={tier.name}
-              monthlyPrice={tier.monthlyPrice}
-              annualPrice={tier.annualPrice}
-              isAnnual={isAnnual}
+              priceLabel={tier.priceLabel}
+              priceSubtext={tier.priceSubtext}
               description={tier.description}
               features={tier.features}
               highlighted={tier.highlighted}
@@ -298,21 +242,27 @@ export default function PricingPage() {
         </div>
       </AnimatedSection>
 
-      {/* 2b. INVESTMENT STORY */}
+      {/* 3. NEW 420VH STICKY PLATFORM VALUE & BYOK ECONOMICS SCROLL STORY */}
+      <PricingValueScrollStory />
+
+      {/* 4. ENHANCED 6-PILLAR SCROLL-DRAWN ARCHITECTURE PIPELINE */}
       <InvestmentStory />
 
-      {/* 3. COMPARISON FEATURE CHECKLIST TABLE */}
-      <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 5. COMPREHENSIVE EDITION MATRIX */}
+      <AnimatedSection
+        spacing="py-24"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge variant="brand" className="mb-3">
-            In-Depth Evaluation
+            Capability Breakdown
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            Comprehensive Feature Matrix
+            Complete Edition Matrix
           </h2>
           <p className="mt-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-            Compare capabilities across tiers to find the exact infrastructure
-            fit for your team.
+            Every console capability compared transparently across Local,
+            Agency, and Enterprise deployments.
           </p>
         </div>
 
@@ -321,7 +271,7 @@ export default function PricingPage() {
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/75 dark:bg-zinc-950/75">
                 <th className="p-6 font-semibold text-zinc-900 dark:text-zinc-100 min-w-[260px]">
-                  Feature Checklist
+                  Console Capability
                 </th>
                 <th className="p-6 font-semibold text-zinc-900 dark:text-zinc-100 text-center min-w-[140px]">
                   Starter
@@ -398,18 +348,20 @@ export default function PricingPage() {
         </div>
       </AnimatedSection>
 
-      {/* 4. FAQ ACCORDION */}
-      <AnimatedSection spacing="py-24" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 6. FAQ ACCORDION */}
+      <AnimatedSection
+        spacing="py-24"
+        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="text-center mb-12">
           <Badge variant="neutral" className="mb-3">
-            Common Inquiries
+            Common Questions
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
             Frequently Asked Questions
           </h2>
           <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
-            Everything you need to know about our developer token routing,
-            syncing, and licensing.
+            Answers on BYOK onboarding, role boundaries, and workspace scaling.
           </p>
         </div>
 
