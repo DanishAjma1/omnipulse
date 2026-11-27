@@ -8,273 +8,311 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { CheckCircle2, Layers, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
-interface FunnelShowcaseItem {
-  id: string;
-  name: string;
-  badge: string;
-  navbarStyle: string;
-  heroStyle: string;
-  footerStyle: string;
-  heightLabel: string;
-  palette: [string, string, string];
-  summary: string;
-  surfacePreview: {
-    bg: string;
-    text: string;
-    border: string;
-    accent: string;
-    eyebrow: string;
-    headline: string;
-  };
+/**
+ * PLATFORM SCROLL STORY (Part 2) — Philosophy: "3D Tactile Stacked Browser-Deck Peel"
+ * Three physical browser windows sit layered in 3D depth on a drafting stage.
+ * As you scroll through each window's segment:
+ *  1) Its inner 12-act landing page scrolls vertically inside the browser frame
+ *  2) The entire browser card lifts and peels upward in 3D perspective, scaling the next
+ *     design system forward from the stack underneath.
+ */
+
+interface DeckBrowserTheme {
+  id: "modern_saas" | "vibrant_dynamic" | "direct_response";
+  url: string;
+  label: string;
+  archetype: string;
+  chromeBg: string;
+  chromeBorder: string;
+  pageBg: string;
+  pageText: string;
+  accentPill: string;
+  heroTitle: string;
+  heroSub: string;
+  kpis: Array<{ v: string; l: string }>;
+  acts: Array<{ tag: string; heading: string; note: string }>;
+  footerCta: string;
 }
 
-const TEMPLATES: FunnelShowcaseItem[] = [
+const DECK: DeckBrowserTheme[] = [
   {
     id: "modern_saas",
-    name: "Template 01 · Obsidian Command",
-    badge: "Enterprise Dark",
-    navbarStyle: "Frosted Split Pill Bar + 2px Scroll Progress",
-    heroStyle: "Asymmetric 7/5 Telemetry Hero",
-    footerStyle: "4-Column Command Manifesto Footer",
-    heightLabel: "460vh+ · 12 Removable Acts",
-    palette: ["#090d16", "#6366f1", "#06b6d4"],
-    summary:
-      "Engineered for B2B agencies and SaaS offers. Features alternating obsidian bands, frosted pill navigation, live comparison matrices, and 3 persistent Vercel Blob visual slots.",
-    surfacePreview: {
-      bg: "bg-[#090d16]",
-      text: "text-slate-100",
-      border: "border-indigo-500/40",
-      accent: "bg-indigo-600 text-white",
-      eyebrow: "ACT 01 · UNIFIED ATTRIBUTION",
-      headline: "Turn Fragmented Paid Clicks Into Compounding Enterprise Pipeline",
-    },
+    url: "https://omnipulse.app/f/obsidian-b2b-pipeline",
+    label: "Architecture I · Obsidian Command",
+    archetype: "B2B SaaS & Enterprise Retainers",
+    chromeBg: "bg-[#0c111d] text-slate-300",
+    chromeBorder: "border-indigo-500/45",
+    pageBg: "bg-[#070b14]",
+    pageText: "text-slate-100",
+    accentPill: "bg-indigo-600 text-white",
+    heroTitle: "Turn Paid Search Demand Into Predictable SQL Pipeline.",
+    heroSub:
+      "Frosted split-pill navigation, asymmetric telemetry hero, and dark obsidian contrast bands.",
+    kpis: [
+      { v: "4.8x", l: "Blended ROAS" },
+      { v: "38%", l: "Lower Cost / SQL" },
+      { v: "14d", l: "Launch Velocity" },
+    ],
+    acts: [
+      {
+        tag: "ACT 04 · DIAGNOSTIC MATRIX",
+        heading: "Why Last-Click Funnels Leak High-Intent Buyers",
+        note: "Side-by-side comparison grid + Blob visual slot #2",
+      },
+      {
+        tag: "ACT 08 · MECHANISM TIMELINE",
+        heading: "90-Day Attribution & Creative Sprint Roadmap",
+        note: "3-milestone execution cards with live anchor jump",
+      },
+    ],
+    footerCta: "Schedule Executive Pipeline Audit →",
   },
   {
     id: "vibrant_dynamic",
-    name: "Template 02 · Swiss Daylight Studio",
-    badge: "Editorial Light",
-    navbarStyle: "Two-Tier Magazine Masthead + Hairline Rules",
-    heroStyle: "50/50 Split-Screen Magazine Cover",
-    footerStyle: "Oversized Serif Wordmark Ledger",
-    heightLabel: "440vh+ · 12 Removable Acts",
-    palette: ["#faf7f2", "#ea580c", "#0f766e"],
-    summary:
-      "Warm ivory paper editorial architecture inspired by print monographs. Pairs high-contrast serif headlines with stone-framed lookbooks, editable anchor links, and instant click-to-edit studio tabs.",
-    surfacePreview: {
-      bg: "bg-[#faf7f2]",
-      text: "text-stone-900",
-      border: "border-stone-300",
-      accent: "bg-orange-600 text-white",
-      eyebrow: "EDITION 01 · CURATED BRIEF",
-      headline: "Editorial Conviction That Converts Discerning Buyers Into Retainers",
-    },
+    url: "https://omnipulse.app/f/swiss-editorial-brief",
+    label: "Architecture II · Swiss Daylight Studio",
+    archetype: "Editorial Advisory & Boutique Studios",
+    chromeBg: "bg-[#efeae1] text-stone-700",
+    chromeBorder: "border-stone-400/80",
+    pageBg: "bg-[#faf7f2]",
+    pageText: "text-stone-900",
+    accentPill: "bg-orange-600 text-white",
+    heroTitle: "Editorial Authority That Converts Cold Traffic Into Retainers.",
+    heroSub:
+      "Warm ivory monograph paper, hairline editorial rules, serif masthead, and lookbook frames.",
+    kpis: [
+      { v: "62%", l: "Scroll Completion" },
+      { v: "3.1x", l: "Booked Briefings" },
+      { v: "0.9s", l: "Edge FCP" },
+    ],
+    acts: [
+      {
+        tag: "EDITION II · CASE MONOGRAPH",
+        heading: "Curated Portfolio Proof Without Generic SaaS Templates",
+        note: "Stone-bordered gallery + serif pull-quotes",
+      },
+      {
+        tag: "EDITION III · TRANSPARENT SCOPE",
+        heading: "Fixed-Deliverable Sprints & Direct Founder Access",
+        note: "Two-column print ledger + FAQ accordion",
+      },
+    ],
+    footerCta: "Request Private Studio Dossier →",
   },
   {
     id: "direct_response",
-    name: "Template 03 · Velocity Matrix HUD",
-    badge: "Conversion Cockpit",
-    navbarStyle: "Detached Floating Capsule HUD + Live Pulse",
-    heroStyle: "Centered High-Velocity Command Deck",
-    footerStyle: "Compact Floating Glass Conversion Dock",
-    heightLabel: "450vh+ · 12 Removable Acts",
-    palette: ["#030712", "#10b981", "#06b6d4"],
-    summary:
-      "High-urgency direct-response cockpit with neon emerald telemetry frames, monospace KPI proof strips, deliverable value stacks, and zero-AI deterministic rendering.",
-    surfacePreview: {
-      bg: "bg-[#030712]",
-      text: "text-emerald-50",
-      border: "border-emerald-500/40",
-      accent: "bg-emerald-500 text-slate-950",
-      eyebrow: "⚡ STAGE 01 · DIRECT OFFER",
-      headline: "Add 45+ Qualified Sales Appointments Every 30 Days Without Ad Waste",
-    },
+    url: "https://omnipulse.app/f/velocity-matrix-offer",
+    label: "Architecture III · Velocity Matrix HUD",
+    archetype: "High-Velocity Local & Direct Response",
+    chromeBg: "bg-[#04100d] text-emerald-200",
+    chromeBorder: "border-emerald-500/50",
+    pageBg: "bg-[#020806]",
+    pageText: "text-emerald-50",
+    accentPill: "bg-emerald-400 text-slate-950 font-extrabold",
+    heroTitle: "Book 40+ Qualified Local Estimates in 30 Days—Guaranteed.",
+    heroSub:
+      "Floating capsule HUD, live emerald pulse indicator, value-stack deliverables, and urgency dock.",
+    kpis: [
+      { v: "$21.40", l: "Avg Lead CPL" },
+      { v: "91/100", l: "SERP Speed" },
+      { v: "24/7", l: "CRM Auto-Capture" },
+    ],
+    acts: [
+      {
+        tag: "STAGE 05 · VALUE STACK",
+        heading: "Everything Included in Your Geo-Fenced Launch Pack",
+        note: "Itemized deliverable checklist + risk-reversal seal",
+      },
+      {
+        tag: "STAGE 11 · INSTANT LEAD CAPTURE",
+        heading: "Direct CRM Kanban & Deal Creation on Every Submission",
+        note: "Zero webhook glue — writes straight to CRM pipeline",
+      },
+    ],
+    footerCta: "Claim Territory Availability Check →",
   },
 ];
 
-function TemplateSlide({
+function BrowserCardWrapper({
   progress,
   index,
   total,
-  item,
+  theme,
 }: {
   progress: MotionValue<number>;
   index: number;
   total: number;
-  item: FunnelShowcaseItem;
+  theme: DeckBrowserTheme;
 }) {
   const seg = 1 / total;
-  const start = index * seg;
-  const fadeIn = start + seg * 0.16;
-  const fadeOut = start + seg * 0.84;
-  const end = (index + 1) * seg;
+  const segStart = index * seg;
+  const innerScrollEnd = segStart + seg * 0.68;
+  const peelEnd = (index + 1) * seg;
+  const isLast = index === total - 1;
+
+  // Before this card's turn, it sits scaled down & slightly lower in the physical stack.
+  // During its turn, it sits full size at y=0 while its inner page scrolls.
+  // At the end of its turn (except the last card), it peels upward & tilts back.
+  const prevStart = Math.max(0, (index - 1) * seg + seg * 0.68);
+
+  const scale = useTransform(
+    progress,
+    index === 0
+      ? [0, innerScrollEnd, peelEnd]
+      : [0, prevStart, segStart, innerScrollEnd, peelEnd],
+    index === 0
+      ? [1, 1, 0.94]
+      : isLast
+        ? [1 - index * 0.05, 1 - 0.05, 1, 1, 1]
+        : [1 - index * 0.05, 0.95, 1, 1, 0.94]
+  );
+
+  const y = useTransform(
+    progress,
+    index === 0
+      ? [0, innerScrollEnd, peelEnd]
+      : [0, prevStart, segStart, innerScrollEnd, peelEnd],
+    index === 0
+      ? ["0%", "0%", "-115%"]
+      : isLast
+        ? [`${index * 26}px`, "26px", "0px", "0px", "0px"]
+        : [`${index * 26}px`, "26px", "0px", "0px", "-115%"]
+  );
 
   const opacity = useTransform(
     progress,
     index === 0
-      ? [0, 0.01, fadeOut, end]
-      : index === total - 1
-        ? [start, fadeIn, 0.99, 1]
-        : [start, fadeIn, fadeOut, end],
+      ? [0, innerScrollEnd, peelEnd]
+      : [0, segStart - 0.05, segStart, innerScrollEnd, peelEnd],
     index === 0
-      ? [1, 1, 1, 0]
-      : index === total - 1
-        ? [0, 1, 1, 1]
-        : [0, 1, 1, 0]
+      ? [1, 1, 0]
+      : isLast
+        ? [0.55, 0.85, 1, 1, 1]
+        : [0.45, 0.85, 1, 1, 0]
+  );
+
+  // Scroll the miniature landing page inside the active browser viewport!
+  const innerPageY = useTransform(
+    progress,
+    [segStart + 0.03, isLast ? 0.96 : innerScrollEnd],
+    ["0%", "-42%"]
   );
 
   return (
     <motion.div
-      style={{ opacity }}
-      className="pointer-events-none absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-6 sm:p-10"
+      style={{
+        y,
+        scale,
+        opacity,
+        zIndex: (total - index) * 10,
+      }}
+      className="absolute inset-x-0 mx-auto w-full max-w-5xl will-change-transform"
     >
-      <div className="lg:col-span-5 space-y-4">
-        <div className="flex items-center gap-2.5">
-          <Badge variant="brand">{item.badge}</Badge>
-          <span className="font-mono text-xs text-emerald-400">
-            {item.heightLabel}
+      <div
+        className={`overflow-hidden rounded-3xl border-2 ${theme.chromeBorder} shadow-[0_30px_90px_-20px_rgba(0,0,0,0.65)]`}
+      >
+        {/* Browser Window Chrome */}
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 border-b border-current/10 px-4 py-3 ${theme.chromeBg}`}
+        >
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+            <span className="ml-2 font-mono text-xs font-bold">
+              {theme.label}
+            </span>
+          </div>
+
+          <div className="hidden md:block rounded-lg bg-black/15 px-3 py-1 font-mono text-[11px] opacity-80">
+            {theme.url}
+          </div>
+
+          <span className="rounded-full border border-current/20 px-2.5 py-0.5 font-mono text-[10px] font-semibold">
+            {theme.archetype}
           </span>
         </div>
 
-        <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-          {item.name}
-        </h3>
-
-        <p className="text-sm text-zinc-400 leading-relaxed">{item.summary}</p>
-
-        <div className="space-y-2 pt-1 font-mono text-xs text-zinc-300">
-          <p className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
-              <strong>Navbar:</strong> {item.navbarStyle}
-            </span>
-          </p>
-          <p className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
-              <strong>Hero:</strong> {item.heroStyle}
-            </span>
-          </p>
-          <p className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>
-              <strong>Footer:</strong> {item.footerStyle}
-            </span>
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 pt-2">
-          <span className="text-xs font-mono text-zinc-500">Palette:</span>
-          {item.palette.map((hex) => (
-            <span
-              key={hex}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-[11px] text-zinc-300"
-            >
-              <span
-                className="w-3 h-3 rounded-full border border-white/20"
-                style={{ backgroundColor: hex }}
-              />
-              {hex}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Live Sandboxed Template Frame Mock */}
-      <div className="lg:col-span-7">
+        {/* Browser Viewport (Clips the scrolling miniature 400vh page inside) */}
         <div
-          className={`rounded-2xl border-2 ${item.surfacePreview.border} ${item.surfacePreview.bg} ${item.surfacePreview.text} shadow-2xl overflow-hidden`}
+          className={`relative h-[400px] sm:h-[440px] overflow-hidden ${theme.pageBg} ${theme.pageText}`}
         >
-          {/* Distinct Navbar Preview */}
-          {item.id === "vibrant_dynamic" ? (
-            <div className="border-b-2 border-stone-300 px-5 py-2.5 space-y-1.5">
-              <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest text-stone-500 border-b border-stone-300 pb-1">
-                <span>SWISS EDITORIAL EDITION</span>
-                <span>VOL. 01 · 440VH</span>
-              </div>
+          <motion.div style={{ y: innerPageY }} className="p-6 sm:p-10 space-y-8">
+            {/* Simulated Page Hero */}
+            <div className="space-y-4 border-b border-current/10 pb-7">
               <div className="flex items-center justify-between">
-                <span className="font-serif font-black text-base">
-                  Daylight Studio
+                <span className="font-mono text-[10px] uppercase tracking-widest opacity-70">
+                  LIVE SANDBOXED IFRAME • CLICK ANY ELEMENT TO EDIT
                 </span>
-                <div className="hidden sm:flex gap-4 text-[10px] font-bold uppercase tracking-wider">
-                  <span>Outcomes</span>
-                  <span>Process</span>
-                  <span>FAQ</span>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-mono ${theme.accentPill}`}>
+                  12 Removable Acts
+                </span>
+              </div>
+
+              <h3
+                className={`text-2xl sm:text-4xl font-black leading-tight ${
+                  theme.id === "vibrant_dynamic" ? "font-serif" : ""
+                }`}
+              >
+                {theme.heroTitle}
+              </h3>
+
+              <p className="max-w-2xl text-xs sm:text-sm opacity-75">
+                {theme.heroSub}
+              </p>
+
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                {theme.kpis.map((k) => (
+                  <div
+                    key={k.l}
+                    className="rounded-2xl border border-current/15 p-3.5"
+                  >
+                    <p className="font-mono text-lg sm:text-2xl font-extrabold">
+                      {k.v}
+                    </p>
+                    <p className="font-mono text-[10px] uppercase opacity-65">
+                      {k.l}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Simulated Mid-Funnel Acts (Scrolled into view before card peels!) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {theme.acts.map((act) => (
+                <div
+                  key={act.tag}
+                  className="rounded-2xl border border-current/15 p-5 space-y-2"
+                >
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wider opacity-65">
+                    {act.tag}
+                  </p>
+                  <h4 className="text-base sm:text-lg font-bold leading-snug">
+                    {act.heading}
+                  </h4>
+                  <p className="text-xs opacity-70">{act.note}</p>
                 </div>
-                <span className="px-3 py-1 text-[10px] font-bold uppercase bg-orange-600 text-white">
-                  Book Briefing
-                </span>
-              </div>
-            </div>
-          ) : item.id === "direct_response" ? (
-            <div className="p-3">
-              <div className="mx-auto rounded-full border border-emerald-500/40 bg-[#050c18] px-4 py-2 flex items-center justify-between text-xs font-mono">
-                <span className="font-bold flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Velocity Matrix
-                </span>
-                <span className="hidden sm:inline text-[10px] text-emerald-300">
-                  Outcomes · Proof · Stack · FAQ
-                </span>
-                <span className="px-3 py-1 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-bold">
-                  Claim Audit →
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="border-b border-slate-800 px-5 py-3 flex items-center justify-between text-xs">
-              <span className="font-extrabold">Obsidian Command</span>
-              <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-[10px] text-slate-300">
-                Outcomes · Mechanism · Proof · FAQ
-              </span>
-              <span className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold">
-                Book Audit
-              </span>
-            </div>
-          )}
-
-          {/* Hero Preview Body */}
-          <div className="p-6 sm:p-8 space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-widest opacity-75">
-                {item.surfacePreview.eyebrow}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-600 text-white">
-                Click any block to edit
-              </span>
+              ))}
             </div>
 
-            <h4 className="text-xl sm:text-3xl font-black leading-tight">
-              {item.surfacePreview.headline}
-            </h4>
-
-            <div className="grid grid-cols-3 gap-2.5 pt-1 font-mono text-[11px]">
-              <div className="p-3 rounded-xl border border-current/15">
-                <p className="opacity-60 text-[10px]">BLOB SLOT 1</p>
-                <p className="font-bold mt-0.5">Hero Visual</p>
+            {/* Simulated Conversion Dock Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-current/20 p-5">
+              <div>
+                <p className="font-mono text-[10px] uppercase opacity-65">
+                  ACT 12 · CONVERSION &amp; CRM INGESTION
+                </p>
+                <p className="text-sm font-bold mt-0.5">
+                  3 Vercel Blob Visual Slots • Auto JSON-LD &amp; OpenGraph SEO
+                </p>
               </div>
-              <div className="p-3 rounded-xl border border-current/15">
-                <p className="opacity-60 text-[10px]">BLOB SLOT 2</p>
-                <p className="font-bold mt-0.5">Act V Reveal</p>
-              </div>
-              <div className="p-3 rounded-xl border border-current/15">
-                <p className="opacity-60 text-[10px]">BLOB SLOT 3</p>
-                <p className="font-bold mt-0.5">Act VII Proof</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2 text-[11px] font-mono opacity-75">
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5" /> 12 Equal-Spaced Sections
-              </span>
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> Editable Nav &amp; Footer
-                Links
+              <span className={`rounded-xl px-4 py-2 text-xs font-bold ${theme.accentPill}`}>
+                {theme.footerCta}
               </span>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </motion.div>
@@ -288,49 +326,42 @@ export function FunnelStudioShowcaseStory() {
     offset: ["start start", "end end"],
   });
   const smooth = useSpring(scrollYProgress, {
-    stiffness: 140,
-    damping: 28,
+    stiffness: 120,
+    damping: 26,
     mass: 0.35,
   });
-  const barWidth = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
     <section
       id="funnels"
       ref={trackRef}
-      aria-label="400vh Scroll-Story Funnel Studio Showcase"
-      className="relative h-[360vh] bg-zinc-950 text-white border-y border-zinc-800"
+      aria-label="Stacked 3D Funnel Architecture Deck"
+      className="relative h-[380vh] border-y border-zinc-200 dark:border-zinc-800 bg-gradient-to-b from-zinc-100 via-white to-zinc-100 dark:from-[#0b0d13] dark:via-[#080a0f] dark:to-[#0b0d13]"
     >
-      <div className="sticky top-0 flex h-screen flex-col justify-between overflow-hidden pt-20 pb-8">
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <Badge variant="brand" dot>
-              Scroll-Story Funnel Studio • 3 Distinct 400vh+ Architectures
-            </Badge>
-            <span className="text-xs font-mono text-zinc-400">
-              Click-to-Edit Iframe • Max 3 Vercel Blob Images • Zero AI Needed
-            </span>
-          </div>
-          <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
-            <motion.div
-              style={{ width: barWidth }}
-              className="h-full bg-gradient-to-r from-indigo-500 via-amber-400 to-emerald-400"
-            />
-          </div>
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden pt-16 pb-6">
+        <div className="mx-auto mb-6 w-full max-w-5xl px-4 sm:px-6 text-center">
+          <Badge variant="brand">
+            3D Funnel Studio Drafting Deck
+          </Badge>
+          <h2 className="mt-2 text-2xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+            Watch Each Landing Architecture Scroll, Then Peel Away.
+          </h2>
+          <p className="mt-1.5 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+            Switch themes live in the studio without losing a single headline, link, or uploaded Blob image.
+          </p>
         </div>
 
-        <div className="relative max-w-7xl w-full mx-auto flex-1 my-4 px-4 sm:px-6 lg:px-8">
-          <div className="relative h-full w-full rounded-3xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md overflow-hidden">
-            {TEMPLATES.map((tpl, idx) => (
-              <TemplateSlide
-                key={tpl.id}
-                progress={scrollYProgress}
-                index={idx}
-                total={TEMPLATES.length}
-                item={tpl}
-              />
-            ))}
-          </div>
+        {/* 3D Layered Browser Stack */}
+        <div className="relative mx-auto h-[460px] sm:h-[500px] w-full max-w-5xl px-4 sm:px-6 [perspective:1600px]">
+          {DECK.map((theme, idx) => (
+            <BrowserCardWrapper
+              key={theme.id}
+              progress={smooth}
+              index={idx}
+              total={DECK.length}
+              theme={theme}
+            />
+          ))}
         </div>
       </div>
     </section>

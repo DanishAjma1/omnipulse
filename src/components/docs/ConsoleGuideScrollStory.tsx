@@ -1,283 +1,473 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import { CheckCircle2, ChevronRight, Terminal } from "lucide-react";
+  Braces,
+  Check,
+  Copy,
+  FileCode2,
+  GitBranch,
+  KeyRound,
+  Layers,
+  ShieldCheck,
+  Webhook,
+} from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 /**
- * DOCS story — "Guided console walkthrough".
- * Identity: a left-hand table of contents that fills as you read, driving a
- * terminal-style window on the right that "executes" each module step by step.
- * (Pricing = convergence animation, Platform = 3D revolver — intentionally different.)
+ * DOCS SCROLL STORY — Philosophy: "Natural-Scroll Engineering Blueprint + Sticky Live HTTP Inspector"
+ * Unlike Marketing/Pricing/Platform locked viewports, technical documentation lets operators
+ * read at their own vertical scroll pace on the left while a pinned protocol inspector on the
+ * right morphs live request headers, middleware pipelines, and JSON response envelopes via
+ * viewport intersection (`onViewportEnter`) or direct click selection.
  */
 
-interface GuideChapter {
+interface SpecSection {
   id: string;
-  step: string;
+  specCode: string;
+  method: "POST" | "PUT" | "GET" | "MIDDLEWARE";
+  endpoint: string;
+  status: string;
+  latency: string;
   title: string;
-  short: string;
-  subtitle: string;
-  method: string;
-  route: string;
-  logs: string[];
-  result: string;
-  accent: string;
+  rationale: string;
+  parameters: Array<{ name: string; type: string; rule: string }>;
+  pipeline: [string, string, string];
+  requestSnippet: string;
+  responseSnippet: string;
 }
 
-const CHAPTERS: GuideChapter[] = [
+const SPECS: SpecSection[] = [
   {
-    id: "vault-onboarding",
-    step: "01",
-    title: "Email OTP & Zero-Knowledge BYOK Vault",
-    short: "Onboarding & Vault",
-    subtitle:
-      "Verify ownership via a 6-digit Resend OTP, validate your 10-digit Google Ads MCC ID and Developer Token with strict Zod rules, and encrypt every secret at rest with AES-256-GCM.",
+    id: "spec-envelope",
+    specCode: "SPEC 01 // DETERMINISTIC REST CONTRACT",
     method: "POST",
-    route: "/api/v1/onboarding/register",
-    logs: [
-      "Zero plain-text token exposure in UI or logs",
-      "Strict XXX-XXX-XXXX MCC & 20–32 char token checks",
-      "Password-verified credential rotation in Settings",
+    endpoint: "/api/v1/onboarding/otp/verify",
+    status: "200 OK",
+    latency: "18ms",
+    title: "Unified JSON Envelope & Pre-Controller Zod Parsing",
+    rationale:
+      "Every endpoint across `/api/v1` enforces a single four-key response shape (`success`, `message`, `error`, `data`). Request bodies, URL params, and query strings are validated with shared `@agency/config` Zod schemas before controller code executes.",
+    parameters: [
+      { name: "email", type: "string", rule: "Trimmed, RFC-5322 email <= 254 chars" },
+      { name: "code", type: "string", rule: "6-digit numeric OTP (/^\\d{6}$/)" },
+      { name: "envelope", type: "ApiEnvelope<T>", rule: "Guaranteed on 2xx, 4xx, and 5xx" },
     ],
-    result: "201 Created · tenant vault sealed (AES-256-GCM)",
-    accent: "text-indigo-300",
+    pipeline: ["Zod Schema Gate", "OTP Hash Compare", "Signed Token Mint"],
+    requestSnippet: `POST /api/v1/onboarding/otp/verify HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "ops@northstar.agency",
+  "code": "482910"
+}`,
+    responseSnippet: `{
+  "success": true,
+  "message": "Email verified",
+  "error": null,
+  "data": {
+    "verified": true,
+    "email": "ops@northstar.agency",
+    "verificationToken": "eyJhbGciOiJIUzI1NiIs..."
+  }
+}`,
   },
   {
-    id: "mcc-hierarchy",
-    step: "02",
-    title: "MCC Child Discovery & 3-Tier Telemetry",
-    short: "MCC Telemetry",
-    subtitle:
-      "Synchronize every child Google Ads account under your Manager Account with automatic self-loop exclusion and drill cleanly from Campaign → Ad Group → Ad / PMax Asset Group.",
+    id: "spec-vault",
+    specCode: "SPEC 02 // AUTHENTICATED ENCRYPTION AT REST",
+    method: "PUT",
+    endpoint: "/api/v1/settings/google-credentials",
+    status: "200 OK",
+    latency: "42ms",
+    title: "AES-256-GCM Ciphertext Envelope & Masked Reads",
+    rationale:
+      "Plaintext API credentials never touch disk or outbound read DTOs. On write, the server verifies the operator's current password via bcrypt, generates a fresh 12-byte random IV, seals the secret with AES-256-GCM, and stores `iv:authTag:ciphertext`.",
+    parameters: [
+      { name: "currentPassword", type: "string", rule: "Re-authenticated before key rotation" },
+      { name: "mccId", type: "string", rule: "10-digit Google Manager ID (XXX-XXX-XXXX)" },
+      { name: "developerToken", type: "string", rule: "20–32 URL-safe chars, masked on GET" },
+    ],
+    pipeline: ["Bcrypt Re-Auth", "12B IV + GCM Seal", "Zero-Plaintext DTO"],
+    requestSnippet: `PUT /api/v1/settings/google-credentials HTTP/1.1
+Authorization: Bearer <admin_jwt>
+
+{
+  "currentPassword": "••••••••••••",
+  "mccId": "441-892-1102",
+  "developerToken": "AB9x_kL29mPq01ZzW8vT4r"
+}`,
+    responseSnippet: `{
+  "success": true,
+  "message": "Credentials rotated",
+  "error": null,
+  "data": {
+    "mccIdMasked": "***-***-1102",
+    "hasDeveloperToken": true,
+    "hasOAuthRefreshToken": true,
+    "status": "ACTIVE"
+  }
+}`,
+  },
+  {
+    id: "spec-webhooks",
+    specCode: "SPEC 03 // RAW-BODY CRYPTOGRAPHIC WEBHOOKS",
     method: "POST",
-    route: "/api/v1/analytics/sync/mcc",
-    logs: [
-      "Rolling 30-day multi-network metric snapshots",
-      "Nightly 01:00 self-rescheduling telemetry sync",
-      "Segmented device, CTR, ROAS & Impression Share",
+    endpoint: "/api/v1/webhooks/resend",
+    status: "200 OK",
+    latency: "11ms",
+    title: "Pre-JSON Raw Buffer HMAC & Replay Window Guard",
+    rationale:
+      "Webhook routes mount `express.raw({ type: 'application/json' })` ahead of the global JSON body parser so byte-exact signatures never break on whitespace normalization. Timestamps outside a 300-second window are rejected with `401`.",
+    parameters: [
+      { name: "svix-id", type: "header", rule: "Unique message identifier signed in payload" },
+      { name: "svix-timestamp", type: "header", rule: "Unix epoch seconds (±300s tolerance)" },
+      { name: "svix-signature", type: "header", rule: "Constant-time timingSafeEqual v1 HMAC" },
     ],
-    result: "200 OK · child accounts synced",
-    accent: "text-cyan-300",
+    pipeline: ["express.raw() Bytes", "HMAC-SHA256 Verify", "PG Atomic Tx"],
+    requestSnippet: `POST /api/v1/webhooks/resend HTTP/1.1
+svix-id: msg_2pL9xQv81kZ
+svix-timestamp: 1764230400
+svix-signature: v1,g0hM9r2Jw8Pq...=
+
+{"type":"email.opened","data":{"email_id":"re_91a","tags":[{"name":"tenantId","value":"t_01"}]}}`,
+    responseSnippet: `{
+  "success": true,
+  "message": "OK",
+  "error": null,
+  "data": {
+    "received": true
+  }
+}`,
   },
   {
-    id: "campaign-studio",
-    step: "03",
-    title: "Unified Google & Meta Campaign Studio",
-    short: "Campaign Studio",
-    subtitle:
-      "Launch Google Search RSAs, Performance Max Asset Groups, and Meta Campaign → Ad Set → Ad hierarchies from one guided interface—without touching five native ad managers.",
-    method: "GET",
-    route: "console.omnipulse.io/campaigns/create",
-    logs: [
-      "Enforces Meta 3-tier & Google PMax asset rules",
-      "1-click pause/enable & daily budget micro controls",
-      "Safe status=REMOVED soft-deletion compliance",
-    ],
-    result: "200 OK · campaign hierarchy validated",
-    accent: "text-emerald-300",
-  },
-  {
-    id: "funnel-studio",
-    step: "04",
-    title: "400vh+ Scroll-Story Funnel Studio & Blob CDN",
-    short: "Funnel Studio",
-    subtitle:
-      "Pick from 3 bespoke architectures (Obsidian Command, Swiss Daylight Studio, Velocity Matrix HUD), click any element inside the isolated iframe to edit, and host up to 3 visuals on Vercel Blob.",
-    method: "GET",
-    route: "console.omnipulse.io/admin/funnels",
-    logs: [
-      "Editor · Split Live · Full 400vh Preview modes",
-      "12 equal-spaced removable sections + Nav/Footer links",
-      "Deterministic zero-AI compilation + live SERP audit",
-    ],
-    result: "200 OK · funnel published to /f/:funnelId",
-    accent: "text-amber-300",
-  },
-  {
-    id: "seo-outreach",
-    step: "05",
-    title: "Worker-Thread SEO Crawler & Resend Outreach",
-    short: "SEO & Outreach",
-    subtitle:
-      "Dispatch non-blocking Chromium/Cheerio crawls across bounded CPU worker pools, export instant XML sitemaps, and trigger Svix-verified Resend outreach sequences.",
+    id: "spec-workers",
+    specCode: "SPEC 04 // ASYNCHRONOUS WORKER-THREAD DISPATCH",
     method: "POST",
-    route: "/api/v1/seo/audit  ·  /api/v1/outreach",
-    logs: [
-      "CPU-safe worker thread pool (max cores − 1)",
-      "Idempotent (campaignId, contactId) burst protection",
-      "Live Delivered → Opened → Clicked webhook stream",
+    endpoint: "/api/v1/seo/audit",
+    status: "202 Accepted",
+    latency: "24ms",
+    title: "Non-Blocking Crawl Queue & XML Sitemap Artifact",
+    rationale:
+      "DOM crawling and Lighthouse heuristics run inside a bounded Node `worker_threads` pool (`Math.max(1, cpus - 1)`), keeping the Express event loop responsive. Clients poll report state and stream standards-compliant `sitemap.xml` directly from PostgreSQL.",
+    parameters: [
+      { name: "url", type: "string", rule: "Normalized http/https origin target" },
+      { name: "maxPages", type: "number", rule: "Bounded crawl budget per audit run" },
+      { name: "sitemap.xml", type: "GET", rule: "Served verbatim with application/xml" },
     ],
-    result: "202 Accepted · crawl queued, webhooks armed",
-    accent: "text-purple-300",
+    pipeline: ["202 Report Row", "Worker Pool Crawl", "XML Sitemap Persist"],
+    requestSnippet: `POST /api/v1/seo/audit HTTP/1.1
+Authorization: Bearer <staff_jwt>
+
+{
+  "url": "https://acme-dental.example",
+  "maxPages": 25
+}`,
+    responseSnippet: `{
+  "success": true,
+  "message": "Audit queued",
+  "error": null,
+  "data": {
+    "reportId": "seo_01J9X7K2M",
+    "status": "RUNNING",
+    "sitemapEndpoint": "/api/v1/seo/reports/seo_01J9X7K2M/sitemap.xml"
+  }
+}`,
   },
   {
-    id: "rbac-portals",
-    step: "06",
-    title: "Admin, Manager & Rationed Client Governance",
-    short: "Roles & Portals",
-    subtitle:
-      "Run hands-on as Admin, empower Managers on daily operations while blocking credential vaults and deep-dive financials, and grant Clients strictly rationed read-only ad portals.",
-    method: "AUTH",
-    route: "enforceClientScope · ROLE_GROUPS",
-    logs: [
-      "Managers blocked from Vault & Deep-Dive financials",
-      "Client blast-radius locked to ClientAdAllocation",
-      "Visual account dropdowns—zero raw ID copy-paste",
+    id: "spec-scoping",
+    specCode: "SPEC 05 // QUERY-REWRITING ACCESS MIDDLEWARE",
+    method: "MIDDLEWARE",
+    endpoint: "GET /api/v1/campaigns?platform=GOOGLE",
+    status: "200 / 403",
+    latency: "9ms",
+    title: "JWT Tenant Lock & Mathematical ClientAdAllocation Scope",
+    rationale:
+      "Every protected route executes `authenticate → enforceTenantIsolation`. When `role === 'CLIENT'`, `enforceClientScope` resolves `ClientAdAllocation` rows from PostgreSQL and injects `req.clientScope.campaignIds` straight into the upstream GAQL/Graph predicate.",
+    parameters: [
+      { name: "req.tenantId", type: "UUID", rule: "Verified against active DB tenant record" },
+      { name: "campaignIds: null", type: "Scope", rule: "Full allocated ad-account visibility" },
+      { name: "campaignIds: string[]", type: "Scope", rule: "Restricted to listed campaign IDs only" },
     ],
-    result: "403 for out-of-scope · 200 for allocated campaigns",
-    accent: "text-teal-300",
+    pipeline: ["JWT Signature", "Tenant DB Match", "ClientAdAllocation"],
+    requestSnippet: `GET /api/v1/campaigns?platform=GOOGLE&adAccountId=4418921102
+Authorization: Bearer <client_portal_jwt>
+
+// Middleware resolution:
+// req.user = { role: "CLIENT", tenantId: "t_01" }
+// req.clientScope = { adAccountId: "4418921102", campaignIds: ["cmp_881", "cmp_884"] }`,
+    responseSnippet: `{
+  "success": true,
+  "message": "OK",
+  "error": null,
+  "data": {
+    "scope": "RATIONED_CAMPAIGNS",
+    "items": [
+      { "id": "cmp_881", "name": "Brand Search — US", "roas": 5.42 },
+      { "id": "cmp_884", "name": "PMax Lead Gen", "roas": 4.18 }
+    ]
+  }
+}`,
   },
 ];
 
+const METHOD_BADGE: Record<SpecSection["method"], string> = {
+  POST: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  PUT: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  GET: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30",
+  MIDDLEWARE: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30",
+};
+
 export function ConsoleGuideScrollStory() {
-  const trackRef = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [tab, setTab] = useState<"request" | "response">("response");
+  const [copied, setCopied] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
-  });
-  const smooth = useSpring(scrollYProgress, {
-    stiffness: 140,
-    damping: 28,
-    mass: 0.35,
-  });
-  const railFill = useTransform(smooth, [0, 1], ["0%", "100%"]);
+  const activeSpec = SPECS[activeIdx] ?? SPECS[0];
 
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const idx = Math.min(CHAPTERS.length - 1, Math.max(0, Math.floor(v * CHAPTERS.length)));
-    setActive((prev) => (prev === idx ? prev : idx));
-  });
-
-  const chapter = CHAPTERS[active];
+  const copyActiveSnippet = () => {
+    const text =
+      tab === "request" ? activeSpec.requestSnippet : activeSpec.responseSnippet;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    }
+  };
 
   return (
     <section
-      ref={trackRef}
-      aria-label="Step-by-step Agency Console documentation walkthrough"
-      className="relative h-[480vh] bg-zinc-950 text-white border-y border-zinc-800"
+      aria-label="Engineering protocol and request lifecycle reference"
+      className="relative border-y border-zinc-200 dark:border-zinc-800/90 bg-zinc-50/90 dark:bg-[#0c0f17] py-24"
     >
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden pt-20 pb-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-24 top-1/3 -z-10 h-[420px] w-[520px] rounded-full bg-indigo-600/15 blur-[130px]"
-        />
+      {/* Subtle architectural blueprint grid background */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18] [background-image:linear-gradient(to_right,#94a3b822_1px,transparent_1px),linear-gradient(to_bottom,#94a3b822_1px,transparent_1px)] [background-size:32px_32px]"
+      />
 
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <Badge variant="brand" dot>
-            Interactive Console Walkthrough
-          </Badge>
-          <span className="text-xs font-mono text-zinc-400">
-            Module {chapter.step} / 0{CHAPTERS.length}
-          </span>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Blueprint Masthead */}
+        <div className="mb-14 flex flex-col gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3 max-w-2xl">
+            <Badge variant="brand" dot>
+              Protocol &amp; Middleware Specification
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+              Read the Request Lifecycle as Code.
+            </h2>
+            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Scroll naturally through the five architectural specifications on
+              the left. The pinned protocol inspector on the right updates live
+              with the exact HTTP headers, middleware gates, and JSON envelope.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5">
+              <FileCode2 className="h-3.5 w-3.5 text-indigo-500" />
+              Base: /api/v1
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5">
+              <Braces className="h-3.5 w-3.5 text-emerald-500" />
+              Shared Zod AST
+            </span>
+          </div>
         </div>
 
-        <div className="mx-auto mt-5 grid min-h-0 w-full max-w-7xl flex-1 grid-cols-1 gap-6 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
-          {/* Left: table of contents rail */}
-          <nav
-            aria-label="Walkthrough modules"
-            className="relative hidden lg:col-span-4 lg:flex lg:flex-col lg:justify-center"
-          >
-            <div className="absolute bottom-6 left-[11px] top-6 w-px bg-zinc-800" />
-            <motion.div
-              style={{ height: railFill }}
-              className="absolute left-[11px] top-6 w-px bg-gradient-to-b from-indigo-400 via-cyan-400 to-emerald-400"
-            />
-            <ol className="relative space-y-4">
-              {CHAPTERS.map((c, i) => {
-                const isActive = i === active;
-                const isDone = i < active;
-                return (
-                  <li key={c.id} className="flex items-center gap-4">
-                    <span
-                      className={`z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-mono font-bold transition-colors ${
-                        isActive
-                          ? "border-indigo-400 bg-indigo-500 text-white"
-                          : isDone
-                            ? "border-emerald-500/60 bg-emerald-500/20 text-emerald-300"
-                            : "border-zinc-700 bg-zinc-900 text-zinc-500"
-                      }`}
-                    >
-                      {isDone ? "✓" : c.step}
-                    </span>
-                    <span
-                      className={`text-sm transition-colors ${
-                        isActive ? "font-semibold text-white" : "text-zinc-500"
-                      }`}
-                    >
-                      {c.short}
-                    </span>
-                    {isActive && <ChevronRight className="h-3.5 w-3.5 text-indigo-400" />}
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
+        {/* Split Editorial Blueprint: Left Natural Scroll, Right Sticky Inspector */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start">
+          {/* LEFT: Natural-scroll engineering spec sheets */}
+          <div className="space-y-12 lg:col-span-6 lg:space-y-20 lg:pb-24">
+            {SPECS.map((spec, idx) => {
+              const isCurrent = idx === activeIdx;
+              const Icons = [Braces, KeyRound, Webhook, Layers, ShieldCheck];
+              const SpecIcon = Icons[idx] ?? GitBranch;
 
-          {/* Right: terminal window */}
-          <div className="min-h-0 lg:col-span-8">
-            <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#0b0d13] shadow-2xl">
-              <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900/70 px-4 py-2.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                <span className="ml-3 flex items-center gap-1.5 font-mono text-[11px] text-zinc-400">
-                  <Terminal className="h-3 w-3" /> omnipulse — module {chapter.step}
-                </span>
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={chapter.id}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.28 }}
-                  className="flex flex-1 flex-col justify-center gap-5 overflow-y-auto p-6 sm:p-9"
+              return (
+                <motion.article
+                  key={spec.id}
+                  onViewportEnter={() => setActiveIdx(idx)}
+                  viewport={{ margin: "-38% 0px -38% 0px", amount: 0.2 }}
+                  onClick={() => setActiveIdx(idx)}
+                  className={`cursor-pointer rounded-2xl border p-6 sm:p-8 transition-all duration-300 ${
+                    isCurrent
+                      ? "border-indigo-500/70 bg-white dark:bg-[#111623] shadow-xl shadow-indigo-500/5 ring-1 ring-indigo-500/30"
+                      : "border-zinc-200/90 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/40 opacity-75 hover:opacity-100"
+                  }`}
                 >
-                  <h3 className="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
-                    {chapter.title}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-zinc-100 dark:border-zinc-800/80">
+                    <span className="font-mono text-[11px] font-bold tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                      <SpecIcon className="h-4 w-4" />
+                      {spec.specCode}
+                    </span>
+                    <span
+                      className={`rounded-md border px-2 py-0.5 font-mono text-[11px] font-bold ${METHOD_BADGE[spec.method]}`}
+                    >
+                      {spec.method}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                    {spec.title}
                   </h3>
-                  <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
-                    {chapter.subtitle}
+
+                  <p className="mt-2.5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {spec.rationale}
                   </p>
 
-                  <div className="space-y-2 rounded-xl border border-zinc-800 bg-black/40 p-4 font-mono text-xs sm:text-[13px]">
-                    <p className="text-zinc-300">
-                      <span className="text-emerald-400">$</span>{" "}
-                      <span className={chapter.accent}>{chapter.method}</span> {chapter.route}
-                    </p>
-                    {chapter.logs.map((line, i) => (
-                      <motion.p
-                        key={line}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.12 + i * 0.12 }}
-                        className="flex items-start gap-2 text-zinc-200"
-                      >
-                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                        {line}
-                      </motion.p>
-                    ))}
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.55 }}
-                      className="border-t border-zinc-800 pt-2 text-emerald-300"
-                    >
-                      → {chapter.result}
-                    </motion.p>
+                  {/* Parameter Contract Table */}
+                  <div className="mt-5 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60">
+                    <div className="border-b border-zinc-200 dark:border-zinc-800 px-3.5 py-2 font-mono text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                      Contract Fields &amp; Invariants
+                    </div>
+                    <div className="divide-y divide-zinc-200/70 dark:divide-zinc-800/70">
+                      {spec.parameters.map((param) => (
+                        <div
+                          key={param.name}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-3.5 py-2.5 text-xs"
+                        >
+                          <div className="flex items-center gap-2 font-mono">
+                            <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                              {param.name}
+                            </span>
+                            <span className="rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] text-indigo-600 dark:text-indigo-300">
+                              {param.type}
+                            </span>
+                          </div>
+                          <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">
+                            {param.rule}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+                </motion.article>
+              );
+            })}
+          </div>
+
+          {/* RIGHT: Sticky Live HTTP & Schema Inspector */}
+          <div className="lg:col-span-6 lg:sticky lg:top-28">
+            <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#090c12] text-zinc-100 shadow-2xl">
+              {/* Inspector Top Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 bg-[#0f131d] px-4 py-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="rounded bg-indigo-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-indigo-300">
+                    {activeSpec.method}
+                  </span>
+                  <code className="truncate font-mono text-xs text-zinc-200">
+                    {activeSpec.endpoint}
+                  </code>
+                </div>
+                <div className="flex items-center gap-2 font-mono text-[11px]">
+                  <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-emerald-300 font-semibold">
+                    {activeSpec.status}
+                  </span>
+                  <span className="text-zinc-500">{activeSpec.latency}</span>
+                </div>
+              </div>
+
+              {/* 3-Step Middleware Pipeline Strip */}
+              <div className="grid grid-cols-3 gap-2 border-b border-zinc-800/90 bg-zinc-950/70 px-4 py-3 font-mono text-[11px]">
+                {activeSpec.pipeline.map((gate, i) => (
+                  <div
+                    key={gate}
+                    className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-300"
+                  >
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-500/25 text-[9px] font-bold text-indigo-300">
+                      {i + 1}
+                    </span>
+                    <span className="truncate">{gate}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Payload Tabs + Copy Button */}
+              <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2 bg-[#0b0f18]">
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setTab("request")}
+                    className={`rounded-lg px-3 py-1 font-mono text-xs transition-colors ${
+                      tab === "request"
+                        ? "bg-indigo-600 text-white font-semibold"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    HTTP Request
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTab("response")}
+                    className={`rounded-lg px-3 py-1 font-mono text-xs transition-colors ${
+                      tab === "response"
+                        ? "bg-indigo-600 text-white font-semibold"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    JSON Envelope
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={copyActiveSnippet}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1 font-mono text-[11px] text-zinc-300 hover:border-zinc-700"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Animated Code Pane */}
+              <div className="min-h-[260px] p-5 font-mono text-xs leading-relaxed overflow-x-auto">
+                <AnimatePresence mode="wait">
+                  <motion.pre
+                    key={`${activeSpec.id}-${tab}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-emerald-200/95 whitespace-pre-wrap"
+                  >
+                    {tab === "request"
+                      ? activeSpec.requestSnippet
+                      : activeSpec.responseSnippet}
+                  </motion.pre>
+                </AnimatePresence>
+              </div>
+
+              {/* Spec Jump Footer */}
+              <div className="flex items-center justify-between border-t border-zinc-800 bg-[#0f131d] px-4 py-2.5 font-mono text-[11px] text-zinc-400">
+                <span>
+                  Active Spec {activeIdx + 1} of {SPECS.length}
+                </span>
+                <div className="flex gap-1.5">
+                  {SPECS.map((s, idx) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      aria-label={`Inspect ${s.title}`}
+                      onClick={() => setActiveIdx(idx)}
+                      className={`h-2 rounded-full transition-all ${
+                        idx === activeIdx
+                          ? "w-6 bg-indigo-400"
+                          : "w-2 bg-zinc-700 hover:bg-zinc-500"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

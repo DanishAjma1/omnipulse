@@ -7,259 +7,287 @@ import {
   useScroll,
   useSpring,
   useTransform,
-  type MotionValue,
 } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowRight, Building2, Coins, Scale, TrendingUp, Users } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 /**
- * PRICING story — "Stack convergence".
- * Identity: five separate tool chips drift into one OmniPulse core while cost
- * counters (tools, seat fees, markup, card required) tick down as you scroll.
- * (Docs = terminal walkthrough, Platform = 3D revolver — intentionally different.)
+ * PRICING SCROLL STORY — Philosophy: "Panoramic Horizontal Filmstrip + Live Margin Receipt"
+ * Vertical scroll drives a continuous horizontal camera pan (`x: 0% -> -75%`) across four
+ * side-by-side economic scale stages, while a docked bottom Unit-Economics Ledger recalculates
+ * SaaS seat taxes, middleman markups, and retained agency margin in real time.
  */
 
-interface ValueChapter {
-  act: string;
-  title: string;
-  subtitle: string;
-  points: string[];
+interface EconomicPanel {
+  stage: string;
+  scaleBand: string;
+  edition: string;
+  headline: string;
+  summary: string;
+  traditionalCost: string;
+  omnipulseCost: string;
+  retainedAnnual: string;
+  lineItems: Array<{ label: string; legacy: string; byok: string }>;
 }
 
-const VALUE_CHAPTERS: ValueChapter[] = [
+const PANELS: EconomicPanel[] = [
   {
-    act: "01 · CONSOLIDATE",
-    title: "Five disconnected subscriptions become one workspace",
-    subtitle:
-      "Cold email, landing pages, technical SEO crawls, campaign dashboards and client portals usually mean five logins and five invoices. OmniPulse unifies them.",
-    points: [
-      "Resend + Svix webhooks replace standalone outreach sequencers",
-      "400vh+ Scroll-Story Funnel Studio replaces external page builders",
-      "Rationed client portals replace manual reporting",
+    stage: " LEDGER 01 / 04",
+    scaleBand: "1 – 5 Ad Accounts • Solo & Local Launch",
+    edition: "Starter Edition",
+    headline: "Validate Real Client Campaigns Before Spending a Dollar on Software.",
+    summary:
+      "Traditional marketing stacks charge $300+/month before you land your first retainer. Starter removes subscription gates entirely—connect your own keys and pay zero platform fee.",
+    traditionalCost: "$340 / mo",
+    omnipulseCost: "$0 Platform Fee",
+    retainedAnnual: "$4,080 / yr kept",
+    lineItems: [
+      { label: "Base workspace license", legacy: "$99 / mo", byok: "$0 (Free BYOK)" },
+      { label: "Landing page builder", legacy: "$147 / mo", byok: "Included" },
+      { label: "Client reporting portal", legacy: "$94 / mo", byok: "1 Portal Included" },
     ],
   },
   {
-    act: "02 · BRING YOUR OWN KEYS",
-    title: "Your keys, your quota — no seat tax, no markup",
-    subtitle:
-      "Connect your own Google Ads Developer Token, Meta token, Resend API and Vercel Blob storage, encrypted with AES-256-GCM. Grow your team and client roster without per-seat penalties.",
-    points: [
-      "Optional Manager accounts without per-user fees",
-      "Client analytics portals without per-dashboard surcharges",
-      "Direct provider API routing, no middleman throttling",
+    stage: "LEDGER 02 / 04",
+    scaleBand: "5 – 25 Retainers • Growing Agency Team",
+    edition: "Agency Pro",
+    headline: "Add Media Buyers & Unlimited Client Portals With Zero Seat Tax.",
+    summary:
+      "Most agency platforms penalize headcount growth with $49–$99 per staff login and per-dashboard surcharges. OmniPulse decouples team size and client count from software billing.",
+    traditionalCost: "$1,180 / mo",
+    omnipulseCost: "$0 Seat Surcharge",
+    retainedAnnual: "$14,160 / yr kept",
+    lineItems: [
+      { label: "5 Operations Manager seats", legacy: "$395 / mo", byok: "$0 Seat Tax" },
+      { label: "20 White-label client portals", legacy: "$490 / mo", byok: "Unlimited" },
+      { label: "Multi-account MCC sync", legacy: "$295 / mo", byok: "Direct API Quota" },
     ],
   },
   {
-    act: "03 · EVERYTHING UNLOCKED",
-    title: "Every production engine is available from day one",
-    subtitle:
-      "Local lead-gen, 50+ MCC child accounts or multi-market brand telemetry — each console studio is built to ship immediately.",
-    points: [
-      "3-tier Google Search RSA, PMax & Meta Campaign Studio",
-      "Obsidian Command, Swiss Daylight & Velocity HUD funnel templates",
-      "Worker-thread SEO audits with instant XML sitemap export",
+    stage: "LEDGER 03 / 04",
+    scaleBand: "High-Volume Outreach & Media • Wholesale Pass-Through",
+    edition: "Pure BYOK Math",
+    headline: "Pay Infrastructure Providers at Face Value—Never 4x Credit Markups.",
+    summary:
+      "Bundled SaaS tools buy Resend emails and cloud storage for pennies, then resell them to you inside 'credit packs' at 300%–500% markup. BYOK routes straight to your own provider accounts.",
+    traditionalCost: "3.8x Credit Markup",
+    omnipulseCost: "1.0x Wholesale",
+    retainedAnnual: "100% Margin Kept",
+    lineItems: [
+      { label: "Outbound email volume", legacy: "$0.004 / credit", byok: "Direct Resend rate" },
+      { label: "Ad spend percentage cut", legacy: "1.5% – 3% of media", byok: "0.00% Forever" },
+      { label: "Funnel media CDN hosting", legacy: "Tiered bandwidth add-on", byok: "Own Vercel Blob" },
     ],
   },
   {
-    act: "04 · ZERO FRICTION",
-    title: "Start today — no credit card, no billing lock-in",
-    subtitle:
-      "Verify your email with a 6-digit OTP, vault your MCC credentials and launch in minutes. Need self-hosted scale? Talk to Solutions Engineering.",
-    points: [
-      "2-step Email OTP + encrypted vault onboarding (/register)",
-      "No checkout wall and no surprise billing cycles",
-      "Dedicated Solutions Engineering for custom self-hosted scale",
+    stage: "LEDGER 04 / 04",
+    scaleBand: "50+ Accounts & Holding Groups • Sovereign Cluster",
+    edition: "Enterprise & Self-Hosted",
+    headline: "Graduate to Dedicated Infrastructure & Contractual SLAs Only When Ready.",
+    summary:
+      "When compliance requires single-tenant isolation, multi-MCC clustering, or full self-hosted source deployment on your own cloud, Solutions Engineering scopes a fixed custom agreement.",
+    traditionalCost: "Opaque % Media",
+    omnipulseCost: "Fixed Annual SLA",
+    retainedAnnual: "Predictable CapEx",
+    lineItems: [
+      { label: "Infrastructure tenancy", legacy: "Shared multi-tenant only", byok: "Dedicated / Self-Hosted" },
+      { label: "Uptime & response SLA", legacy: "Best-effort ticket queue", byok: "99.99% • 2-Hr Engineering" },
+      { label: "Warehouse & CRM pipelines", legacy: "Paid connector middleware", byok: "Bespoke Direct Sync" },
     ],
   },
 ];
 
-const CHIPS = [
-  { label: "Cold Email Tool", x: -300, y: -70 },
-  { label: "Funnel Builder", x: 300, y: -70 },
-  { label: "SEO Crawler", x: -230, y: 80 },
-  { label: "Reporting Portal", x: 230, y: 80 },
-  { label: "Per-Seat Licences", x: 0, y: -125 },
+const RECEIPT_METRICS = [
+  { accounts: "3 Accounts", seats: "1 Admin", legacyBill: "$340/mo", omniFee: "$0", saved: "$4,080/yr" },
+  { accounts: "18 Accounts", seats: "1 Admin + 5 Mgrs", legacyBill: "$1,180/mo", omniFee: "$0", saved: "$14,160/yr" },
+  { accounts: "35 Accounts", seats: "Uncapped BYOK", legacyBill: "$2,240/mo", omniFee: "$0 Markup", saved: "$26,880/yr" },
+  { accounts: "75+ Multi-MCC", seats: "Enterprise Org", legacyBill: "% of Ad Spend", omniFee: "Custom Fixed", saved: "Zero % Media Tax" },
 ];
-
-function Chip({
-  progress,
-  label,
-  x,
-  y,
-}: {
-  progress: MotionValue<number>;
-  label: string;
-  x: number;
-  y: number;
-}) {
-  const tx = useTransform(progress, [0.02, 0.3], [x, 0]);
-  const ty = useTransform(progress, [0.02, 0.3], [y, 0]);
-  const opacity = useTransform(progress, [0, 0.22, 0.32], [1, 1, 0]);
-  const scale = useTransform(progress, [0.02, 0.32], [1, 0.4]);
-  return (
-    <motion.span
-      style={{ x: tx, y: ty, opacity, scale }}
-      className="absolute rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 font-mono text-[11px] text-rose-200 line-through decoration-rose-400/70"
-    >
-      {label}
-    </motion.span>
-  );
-}
-
-function Counter({
-  progress,
-  label,
-  from,
-  to,
-  prefix = "",
-  suffix = "",
-}: {
-  progress: MotionValue<number>;
-  label: string;
-  from: number;
-  to: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const value = useTransform(progress, [0.02, 0.32], [from, to]);
-  const [shown, setShown] = useState(from);
-  useMotionValueEvent(value, "change", (v) => setShown(Math.round(v)));
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-center">
-      <p className="font-mono text-2xl font-extrabold text-white sm:text-3xl">
-        {prefix}
-        {shown}
-        {suffix}
-      </p>
-      <p className="mt-0.5 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-function ChapterCopy({
-  progress,
-  index,
-  total,
-  chapter,
-}: {
-  progress: MotionValue<number>;
-  index: number;
-  total: number;
-  chapter: ValueChapter;
-}) {
-  const seg = 1 / total;
-  const start = index * seg;
-  const fadeIn = start + seg * 0.18;
-  const fadeOut = start + seg * 0.82;
-  const end = (index + 1) * seg;
-  const first = index === 0;
-  const last = index === total - 1;
-
-  const opacity = useTransform(
-    progress,
-    first ? [0, 0.01, fadeOut, end] : last ? [start, fadeIn, 0.99, 1] : [start, fadeIn, fadeOut, end],
-    first ? [1, 1, 1, 0] : last ? [0, 1, 1, 1] : [0, 1, 1, 0]
-  );
-  const y = useTransform(progress, [start, fadeIn, fadeOut, end], first ? [0, 0, 0, -20] : [20, 0, 0, -20]);
-
-  return (
-    <motion.div
-      style={{ opacity, y }}
-      className="pointer-events-none absolute inset-0 mx-auto flex max-w-3xl flex-col items-center gap-3 text-center"
-    >
-      <span className="rounded-full border border-indigo-500/30 bg-indigo-500/15 px-3 py-1 font-mono text-[11px] font-bold text-indigo-300">
-        {chapter.act}
-      </span>
-      <h3 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
-        {chapter.title}
-      </h3>
-      <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">{chapter.subtitle}</p>
-      <ul className="mt-1 flex flex-col gap-1.5 text-left text-xs text-zinc-200 sm:text-sm">
-        {chapter.points.map((pt) => (
-          <li key={pt} className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
-            {pt}
-          </li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
 
 export function PricingValueScrollStory() {
-  const trackRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [stageIdx, setStageIdx] = useState(0);
+
   const { scrollYProgress } = useScroll({
-    target: trackRef,
+    target: sectionRef,
     offset: ["start start", "end end"],
   });
-  const smooth = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.35 });
-  const coreScale = useTransform(smooth, [0.02, 0.32], [0.85, 1.12]);
-  const coreGlow = useTransform(smooth, [0.02, 0.32], [0.15, 0.55]);
-  const barWidth = useTransform(smooth, [0, 1], ["0%", "100%"]);
+
+  const smooth = useSpring(scrollYProgress, {
+    stiffness: 110,
+    damping: 26,
+    mass: 0.4,
+  });
+
+  // Pan horizontally across 4 full-width panels (0% -> -75% of a 400% wide filmstrip)
+  const xPercent = useTransform(smooth, [0.04, 0.96], ["0%", "-75%"]);
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const idx = Math.min(PANELS.length - 1, Math.max(0, Math.floor(v * PANELS.length)));
+    setStageIdx((prev) => (prev === idx ? prev : idx));
+  });
+
+  const activeReceipt = RECEIPT_METRICS[stageIdx] ?? RECEIPT_METRICS[0];
+  const icons = [Coins, Users, Scale, Building2];
 
   return (
     <section
-      ref={trackRef}
-      aria-label="Workspace economics and BYOK value scroll story"
-      className="relative h-[420vh] border-y border-zinc-800 bg-zinc-950 text-white"
+      ref={sectionRef}
+      aria-label="Horizontal unit economics and scale cost ledger"
+      className="relative h-[380vh] border-y border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-[#0d1016] text-zinc-900 dark:text-zinc-100"
     >
-      <div className="sticky top-0 flex h-screen flex-col overflow-hidden pt-20 pb-6">
-        <div className="mx-auto w-full max-w-5xl space-y-3 px-4 sm:px-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <Badge variant="brand" dot>
-              Where your agency spend goes
+      <div className="sticky top-0 flex h-screen flex-col justify-between overflow-hidden pt-20 pb-6">
+        {/* Top Editorial Economics Header */}
+        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <div>
+            <Badge variant="success" dot>
+              Panoramic Unit-Economics Filmstrip
             </Badge>
-            <span className="font-mono text-xs text-zinc-400">
-              Zero subscription gate · 100% BYOK ownership
-            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight">
+              How Your Bill Behaves From 1 Client to 75+ Accounts
+            </h2>
           </div>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-800">
-            <motion.div
-              style={{ width: barWidth }}
-              className="h-full bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400"
-            />
+
+          <div className="flex items-center gap-2 font-mono text-xs">
+            {PANELS.map((p, idx) => (
+              <span
+                key={p.edition}
+                className={`rounded-full border px-3 py-1 transition-all ${
+                  idx === stageIdx
+                    ? "border-emerald-500 bg-emerald-500/15 font-bold text-emerald-700 dark:text-emerald-300"
+                    : "border-zinc-300 dark:border-zinc-800 text-zinc-500 hidden sm:inline-block"
+                }`}
+              >
+                0{idx + 1} · {p.edition}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Convergence stage */}
-        <div className="relative mx-auto mt-4 flex h-[34%] w-full max-w-5xl items-center justify-center">
-          {CHIPS.map((c) => (
-            <Chip key={c.label} progress={smooth} {...c} />
-          ))}
+        {/* Center: Horizontal Sliding Filmstrip (400% width) */}
+        <div className="relative flex-1 flex items-center overflow-hidden my-3">
           <motion.div
-            style={{ scale: coreScale }}
-            className="relative z-10 flex h-24 w-24 items-center justify-center rounded-3xl border border-indigo-400/50 bg-indigo-500/20 font-mono text-xs font-bold text-indigo-100"
+            style={{ x: xPercent }}
+            className="flex w-[400%] shrink-0 items-stretch"
           >
-            <motion.span
-              aria-hidden
-              style={{ opacity: coreGlow }}
-              className="absolute inset-0 -z-10 rounded-3xl bg-indigo-500 blur-2xl"
-            />
-            OmniPulse
+            {PANELS.map((panel, idx) => {
+              const Icon = icons[idx] ?? TrendingUp;
+              return (
+                <div
+                  key={panel.stage}
+                  className="w-1/4 shrink-0 px-4 sm:px-8 lg:px-14 flex items-center"
+                >
+                  <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 rounded-3xl border border-zinc-300/90 dark:border-zinc-800 bg-white dark:bg-[#131720] p-6 sm:p-9 shadow-xl lg:grid-cols-12 lg:items-center">
+                    {/* Left: Economic Thesis */}
+                    <div className="space-y-4 lg:col-span-6">
+                      <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+                        <span className="inline-flex items-center gap-1.5 rounded-md bg-indigo-500/10 px-2.5 py-1 font-bold text-indigo-600 dark:text-indigo-300">
+                          <Icon className="h-3.5 w-3.5" />
+                          {panel.stage.trim()}
+                        </span>
+                        <span className="text-zinc-500 dark:text-zinc-400">
+                          {panel.scaleBand}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug text-zinc-900 dark:text-white">
+                        {panel.headline}
+                      </h3>
+
+                      <p className="text-xs sm:text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                        {panel.summary}
+                      </p>
+
+                      {/* Side-by-side Cost Pill Callout */}
+                      <div className="grid grid-cols-3 gap-2.5 pt-1">
+                        <div className="rounded-2xl border border-rose-500/25 bg-rose-500/5 p-3">
+                          <p className="font-mono text-[10px] uppercase text-rose-600 dark:text-rose-400">
+                            Fragmented SaaS
+                          </p>
+                          <p className="mt-1 font-mono text-sm sm:text-base font-bold text-rose-600 dark:text-rose-300 line-through">
+                            {panel.traditionalCost}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-emerald-500/35 bg-emerald-500/10 p-3">
+                          <p className="font-mono text-[10px] uppercase text-emerald-700 dark:text-emerald-300">
+                            OmniPulse
+                          </p>
+                          <p className="mt-1 font-mono text-sm sm:text-base font-extrabold text-emerald-700 dark:text-emerald-300">
+                            {panel.omnipulseCost}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3">
+                          <p className="font-mono text-[10px] uppercase text-indigo-600 dark:text-indigo-300">
+                            Net Impact
+                          </p>
+                          <p className="mt-1 font-mono text-sm sm:text-base font-extrabold text-indigo-700 dark:text-indigo-200">
+                            {panel.retainedAnnual}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Line-by-Line Cost Comparison Receipt */}
+                    <div className="lg:col-span-6">
+                      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#0b0e14] p-5 font-mono text-xs">
+                        <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                          <span>Cost Line Item</span>
+                          <span>Legacy vs. {panel.edition}</span>
+                        </div>
+                        <div className="divide-y divide-zinc-200/80 dark:divide-zinc-800/80">
+                          {panel.lineItems.map((item) => (
+                            <div
+                              key={item.label}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-3.5"
+                            >
+                              <span className="font-sans font-medium text-zinc-800 dark:text-zinc-200">
+                                {item.label}
+                              </span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-rose-500/80 line-through text-[11px]">
+                                  {item.legacy}
+                                </span>
+                                <ArrowRight className="h-3 w-3 text-zinc-400" />
+                                <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 font-bold text-emerald-700 dark:text-emerald-300">
+                                  {item.byok}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </motion.div>
         </div>
 
-        {/* Counters */}
-        <div className="mx-auto grid w-full max-w-3xl grid-cols-2 gap-3 px-4 sm:grid-cols-4 sm:px-6">
-          <Counter progress={smooth} label="Tools in your stack" from={5} to={1} />
-          <Counter progress={smooth} label="Per-seat fees" from={100} to={0} suffix="%" />
-          <Counter progress={smooth} label="API markup" from={100} to={0} suffix="%" />
-          <Counter progress={smooth} label="Cards required" from={1} to={0} />
-        </div>
-
-        {/* Chapter copy */}
-        <div className="relative mx-auto mt-5 w-full max-w-5xl flex-1 px-4 sm:px-6">
-          {VALUE_CHAPTERS.map((ch, idx) => (
-            <ChapterCopy
-              key={ch.act}
-              progress={scrollYProgress}
-              index={idx}
-              total={VALUE_CHAPTERS.length}
-              chapter={ch}
-            />
-          ))}
+        {/* Docked Bottom Live Margin Receipt Bar */}
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-5 py-3.5 font-mono text-xs backdrop-blur-md">
+            <div>
+              <span className="text-[10px] uppercase text-zinc-500">Roster Scale</span>
+              <p className="font-bold text-zinc-900 dark:text-white">{activeReceipt.accounts}</p>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase text-zinc-500">Team Footprint</span>
+              <p className="font-bold text-zinc-900 dark:text-white">{activeReceipt.seats}</p>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase text-zinc-500">Typical Stack Bill</span>
+              <p className="font-bold text-rose-500 line-through">{activeReceipt.legacyBill}</p>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase text-zinc-500">OmniPulse Markup</span>
+              <p className="font-bold text-emerald-600 dark:text-emerald-400">{activeReceipt.omniFee}</p>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <span className="text-[10px] uppercase text-zinc-500">Margin Retained</span>
+              <p className="font-extrabold text-indigo-600 dark:text-indigo-300">{activeReceipt.saved}</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

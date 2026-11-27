@@ -16,55 +16,39 @@ type NodeData = Omit<InvestmentNodeProps, "dotRef">;
 const NODES: NodeData[] = [
   {
     side: "left",
-    eyebrow: "01 · Zero-Knowledge Vault",
-    title: "AES-256-GCM Credential Security",
-    lead: "First-Party Key Ownership.",
-    body: "Every Google Ads Developer Token, OAuth Refresh Token, and API secret is encrypted at rest inside your isolated tenant—with zero middleman token pooling.",
+    eyebrow: "01 · Zero Checkout Gate",
+    title: "No Credit Card Capture or Day-8 Trial Traps",
+    lead: "Evaluate on Live Accounts First.",
+    body: "Provision your production workspace with email verification alone. There are no expiring 7-day trial timers, no pre-authorized cards on file, and zero surprise recurring charges.",
     visual: <ShieldVisual />,
   },
   {
     side: "right",
-    eyebrow: "02 · Multi-Network Ad Ops",
-    title: "Google MCC & Meta 3-Tier Studio",
-    lead: "99.99% Sync Reliability.",
-    body: "Discover child accounts across your MCC, synchronize rolling 30-day telemetry at 01:00 nightly, and launch Search RSAs, PMax Asset Groups, and Meta Ad Sets from one console.",
+    eyebrow: "02 · Zero Media Tax",
+    title: "0.00% Percentage Cut on Managed Ad Spend",
+    lead: "Keep Every Basis Point of Retainer Margin.",
+    body: "Whether your clients spend $3,000/month locally or $2,000,000/month across global markets, OmniPulse never charges a percentage of ad spend or throttles API sync frequency.",
     visual: <ServerVisual />,
   },
   {
     side: "left",
-    eyebrow: "03 · Conversion Architecture",
-    title: "400vh+ Scroll-Story Funnel Studio",
-    lead: "Deterministic Speed.",
-    body: "Build long-form landing pages using Obsidian Command, Swiss Daylight Studio, and Velocity Matrix HUD templates—with 12 removable acts and 3 persistent Vercel Blob media slots.",
+    eyebrow: "03 · Elastic Headcount",
+    title: "Unrestricted Staff & Client Portal Scaling",
+    lead: "Grow Operations Without Renegotiating Licenses.",
+    body: "Onboard new media buyers as Managers and issue read-only reporting portals to every retainer client without triggering seat upgrades or per-client add-on invoices.",
     visual: <RdVisual />,
   },
   {
     side: "right",
-    eyebrow: "04 · Async Compute Pool",
-    title: "Worker-Thread SEO & Resend Outreach",
-    lead: "Proof-First Pipeline.",
-    body: "Execute non-blocking Chromium/Cheerio site crawls, export drop-in XML sitemaps, and trigger p-limit(2) Resend cold outreach bursts backed by Svix HMAC webhooks.",
+    eyebrow: "04 · Sovereign Exit Rights",
+    title: "Complete Data Portability & Self-Hosted Option",
+    lead: "Zero Vendor Lock-In by Design.",
+    body: "Your API keys, CRM contacts, XML sitemaps, and campaign structures belong to you—with a direct path to dedicated single-tenant or self-hosted source ownership whenever compliance demands it.",
     visual: <NeuralVisual />,
-  },
-  {
-    side: "left",
-    eyebrow: "05 · Team Firewall",
-    title: "Admin, Manager & Client Governance",
-    lead: "Safe Operational Delegation.",
-    body: "Add optional Manager logins for day-to-day campaigns, funnels, and outreach while strictly blocking access to sensitive settings, vaults, and cross-client financial deep-dives.",
-    visual: <ShieldVisual />,
-  },
-  {
-    side: "right",
-    eyebrow: "06 · Retainer Multiplier",
-    title: "Rationed White-Label Client Portals",
-    lead: "Long-Term Client Trust.",
-    body: "Grant every external Google or Meta ad client a clean, read-only reporting portal locked mathematically to their ClientAdAllocation scope.",
-    visual: <ServerVisual />,
   },
 ];
 
-/** Scroll-drawn pipeline with six architectural value nodes. */
+/** Scroll-drawn commercial commitment spine on the Pricing page. */
 export function InvestmentStory() {
   const list = useRef<HTMLDivElement>(null);
   const lastDot = useRef<HTMLDivElement>(null);
@@ -100,17 +84,17 @@ export function InvestmentStory() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-20 max-w-3xl text-center">
           <Badge variant="brand" className="mb-3">
-            6-Pillar Architecture Pipeline
+            Commercial Fair-Billing Charter
           </Badge>
           <h2
             id="investment-title"
             className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl"
           >
-            What Powers Every OmniPulse Workspace.
+            Four Commercial Guarantees in Writing.
           </h2>
           <p className="mt-4 text-base text-zinc-600 dark:text-zinc-400 sm:text-lg">
-            Scroll down the spine to see how every engine inside the Agency
-            Console compounds your team&apos;s output without adding headcount.
+            Scroll the commitment spine to see how OmniPulse protects your
+            agency&apos;s unit economics as your client roster compounds.
           </p>
         </div>
 
