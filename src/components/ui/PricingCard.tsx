@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 
 export interface PricingCardProps {
   name: string;
-  monthlyPrice: number;
-  annualPrice: number;
-  isAnnual: boolean;
+  monthlyPrice?: number;
+  annualPrice?: number;
+  isAnnual?: boolean;
+  priceLabel?: string;
+  priceSubtext?: string;
   description: string;
   features: string[];
   highlighted?: boolean;
@@ -22,14 +24,16 @@ export interface PricingCardProps {
 
 export function PricingCard({
   name,
-  monthlyPrice,
-  annualPrice,
-  isAnnual,
+  monthlyPrice = 0,
+  annualPrice = 0,
+  isAnnual = false,
+  priceLabel,
+  priceSubtext,
   description,
   features,
   highlighted = false,
   badge,
-  ctaText = "Get Started",
+  ctaText = "Launch Workspace",
   ctaHref = "/register",
   className,
 }: PricingCardProps) {
@@ -73,17 +77,31 @@ export function PricingCard({
         </p>
 
         <div className="mt-6 flex items-baseline gap-1.5">
-          <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
-            ${price}
-          </span>
-          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            / month
-          </span>
+          {priceLabel ? (
+            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+              {priceLabel}
+            </span>
+          ) : (
+            <>
+              <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+                ${price}
+              </span>
+              <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                / month
+              </span>
+            </>
+          )}
         </div>
-        {isAnnual && (
-          <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-            Billed annually (save 20%)
+        {priceSubtext ? (
+          <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+            {priceSubtext}
           </p>
+        ) : (
+          isAnnual && (
+            <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+              Billed annually (save 20%)
+            </p>
+          )
         )}
 
         <div className="my-8 h-px bg-zinc-200 dark:bg-zinc-800" />

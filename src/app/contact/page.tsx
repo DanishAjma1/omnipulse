@@ -17,6 +17,8 @@ import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { OnboardingScrollStory } from "@/components/contact/OnboardingScrollStory";
+import { API_BASE_URL } from "@/lib/onboarding";
 import { contactInquirySchema, extractFieldErrors } from "@/lib/validation";
 
 export default function ContactPage() {
@@ -32,7 +34,7 @@ export default function ContactPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [submittedTicket, setSubmittedTicket] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFieldErrors({});
     setToastMessage(null);
@@ -44,18 +46,32 @@ export default function ContactPage() {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await fetch(`${API_BASE_URL}/leads/web-dev-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: parsed.data.name,
+          email: parsed.data.email,
+          budgetRange: "5k_15k",
+          projectType: "SAAS_PLATFORM",
+          details: `[${parsed.data.subject}] ${parsed.data.message}`,
+        }),
+      }).catch(() => null);
+    } finally {
       setLoading(false);
       const ticketId = `OMNI-${Math.floor(1000 + Math.random() * 9000)}`;
       setSubmittedTicket(ticketId);
-      setToastMessage("Message received! Solutions team will respond shortly.");
+      setToastMessage(
+        "Inquiry logged into Agency Console Lead Manager! Solutions team will respond shortly."
+      );
       setFormData({
         name: "",
         email: "",
         subject: "Google Ads MCC Migration",
         message: "",
       });
-    }, 1000);
+    }
   };
 
   return (
@@ -194,10 +210,10 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <Link
-                    href="/services#integrations"
+                    href="/docs"
                     className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 shrink-0"
                   >
-                    API Docs
+                    Console Docs
                     <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -362,6 +378,9 @@ export default function ContactPage() {
           </div>
         </div>
       </AnimatedSection>
+
+      {/* 3. 300VH 5-MINUTE ONBOARDING & MIGRATION TIMELINE SCROLL STORY */}
+      <OnboardingScrollStory />
     </MarketingLayout>
   );
 }

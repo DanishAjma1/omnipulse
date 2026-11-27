@@ -2,25 +2,24 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "Pricing Plans • Starter 7-Day Free Trial, White-Label Agency Pro & Global Enterprise",
+    "Workspace Editions & Plans • Free BYOK Onboarding, Agency Scale & Enterprise",
   description:
-    "Compare OmniPulse plans for local businesses seeking hands-off local ads and automated lead generation, marketing agencies scaling white-label client portals, and global brands demanding absolute data ownership, CRM syncing, and deep analytics.",
+    "Compare OmniPulse workspace editions for local businesses, scaling marketing agencies, and global brands—featuring zero subscription checkout friction, BYOK credential ownership, 400vh+ Scroll-Story Funnels, and white-label client portals.",
   keywords: [
-    "marketing agency software pricing",
-    "white-label client portal pricing",
-    "automated local business ads pricing",
-    "7-day free trial Starter marketing suite",
-    "enterprise CRM syncing data ownership plan",
-    "Google Ads MCC management pricing",
+    "marketing agency workspace editions",
+    "BYOK Google Ads MCC platform",
+    "white-label client portal tiers",
+    "automated local business ads workspace",
+    "enterprise CRM syncing data ownership",
   ],
   openGraph: {
     type: "website",
     url: "https://omnipulse.io/pricing",
     siteName: "OmniPulse",
     title:
-      "OmniPulse Pricing • 7-Day Starter Free Trial, White-Label Agency Scaling & Enterprise",
+      "OmniPulse Workspace Editions • Free BYOK Launch, Agency Pro & Enterprise",
     description:
-      "Start your 7-day free trial on Starter for automated local ads, upgrade to Agency Pro for unlimited white-label client portals, or deploy Enterprise with full CRM syncing and absolute data ownership.",
+      "Launch your encrypted OmniPulse workspace with zero credit card or subscription lock-in.",
   },
 };
 

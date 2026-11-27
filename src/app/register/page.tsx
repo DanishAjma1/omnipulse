@@ -8,7 +8,6 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
-  CreditCard,
   Eye,
   EyeOff,
   KeyRound,
@@ -19,15 +18,11 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { StripeCardCapture } from "@/components/onboarding/StripeCardCapture";
 import {
   DEFAULT_ONBOARDING_DRAFT,
   ONBOARDING_STORAGE_KEY,
-  ONBOARDING_TIERS,
   postOnboardingApi,
   type OnboardingDraft,
-  type PlanTier,
-  type StripeSetupSession,
 } from "@/lib/onboarding";
 import {
   extractFieldErrors,
@@ -42,7 +37,8 @@ function loadSavedDraft(): OnboardingDraft {
     const raw = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
     if (!raw) return DEFAULT_ONBOARDING_DRAFT;
     const parsed = JSON.parse(raw) as Partial<OnboardingDraft>;
-    return { ...DEFAULT_ONBOARDING_DRAFT, ...parsed };
+    const normalizedStep = parsed.step === 3 ? 2 : (parsed.step ?? 1);
+    return { ...DEFAULT_ONBOARDING_DRAFT, ...parsed, step: normalizedStep };
   } catch {
     return DEFAULT_ONBOARDING_DRAFT;
   }
@@ -50,7 +46,6 @@ function loadSavedDraft(): OnboardingDraft {
 
 export default function RegisterPage() {
   const [draft, setDraft] = useState<OnboardingDraft>(DEFAULT_ONBOARDING_DRAFT);
-
   const [otpCode, setOtpCode] = useState("");
   const [devOtpPreview, setDevOtpPreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +54,6 @@ export default function RegisterPage() {
   const [bannerError, setBannerError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
 
-  const [stripeSession, setStripeSession] = useState<StripeSetupSession | null>(null);
   const [completionInfo, setCompletionInfo] = useState<{
     consoleLoginUrl: string;
     tenantName: string;
@@ -78,7 +72,10 @@ export default function RegisterPage() {
     setDraft((prev) => {
       const next = { ...prev, ...patch };
       try {
-        window.localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(next));
+        window.localStorage.setItem(
+          ONBOARDING_STORAGE_KEY,
+          JSON.stringify(next)
+        );
       } catch {
         // ignore storage quota failures
       }
@@ -109,7 +106,9 @@ export default function RegisterPage() {
         devOtpPreview?: string;
       }>("/onboarding/otp/send", { email: parsed.data.email });
 
-      setDevOtpPreview(res.devOtpPreview ?? null);
+      setDevOtpPreview(
+        !res.deliveredViaEmail && res.devOtpPreview ? res.devOtpPreview : null
+      );
       updateDraft({
         email: res.email,
         otpSent: true,
@@ -135,7 +134,12 @@ export default function RegisterPage() {
     });
     if (!parsed.success) {
       const nextErrors = extractFieldErrors(parsed.error);
-      setFieldErrors({ otpCode: nextErrors.code || nextErrors.email || "Enter the 6-digit verification code" });
+      setFieldErrors({
+        otpCode:
+          nextErrors.code ||
+          nextErrors.email ||
+          "Enter the 6-digit verification code",
+      });
       return;
     }
 
@@ -157,14 +161,16 @@ export default function RegisterPage() {
         step: 2,
       });
     } catch (err) {
-      setBannerError(err instanceof Error ? err.message : "Invalid verification code");
+      setBannerError(
+        err instanceof Error ? err.message : "Invalid verification code"
+      );
     } finally {
       setBusyAction(null);
     }
   };
 
-  // Step 2: Persist profile + encrypted-in-flight credentials into localStorage and proceed to Step 3
-  const handleSaveCredentialsStep = (e: React.FormEvent) => {
+  // Step 2: Provision BYOK Workspace directly (Zero subscription or credit card gate)
+  const handleCompleteOnboarding = async (e: React.FormEvent) => {
     e.preventDefault();
     setBannerError(null);
     setFieldErrors({});
@@ -183,96 +189,47 @@ export default function RegisterPage() {
       return;
     }
 
-    updateDraft({ step: 3 });
-  };
-
-  // Step 3A: Initialize Stripe customer & SetupIntent session for chosen tier
-  const handleStartStripeCheckout = async (tier: PlanTier = draft.planTier) => {
-    const step2Check = onboardingStep2Schema.safeParse({
-      fullName: draft.fullName,
-      companyName: draft.companyName,
-      password: draft.password,
-      confirmPassword: draft.confirmPassword,
-      mccId: draft.mccId,
-      developerToken: draft.developerToken,
-    });
-    if (!step2Check.success) {
-      setFieldErrors(extractFieldErrors(step2Check.error));
-      setBannerError(
-        step2Check.error.issues[0]?.message ?? "Review your workspace credentials in Step 2 before payment."
-      );
-      updateDraft({ step: 2 });
-      return;
-    }
-    setBannerError(null);
-    setBusyAction("create_setup");
-    try {
-      const session = await postOnboardingApi<StripeSetupSession>(
-        "/onboarding/stripe/create-setup",
-        {
-          email: draft.email.trim(),
-          fullName: draft.fullName.trim(),
-          companyName: draft.companyName.trim(),
-          planTier: tier,
-          verificationToken: draft.verificationToken,
-        }
-      );
-      setStripeSession(session);
-    } catch (err) {
-      setBannerError(err instanceof Error ? err.message : "Unable to initialize Stripe checkout");
-    } finally {
-      setBusyAction(null);
-    }
-  };
-
-  // Step 3B: Only after Stripe card authorization completes, submit full localStorage payload to backend
-  const handleFinalizeRegistration = async (auth: {
-    customerId: string;
-    setupIntentId: string;
-  }) => {
-    setBannerError(null);
     setBusyAction("register");
     try {
-      const latestDraft = loadSavedDraft();
-      const source = latestDraft.verificationToken ? latestDraft : draft;
-
       const result = await postOnboardingApi<{
         token: string;
         tenant: { name: string };
         consoleLoginUrl: string;
       }>("/onboarding/register", {
-        email: source.email.trim(),
-        verificationToken: source.verificationToken,
-        fullName: source.fullName.trim(),
-        companyName: source.companyName.trim(),
-        password: source.password,
-        mccId: source.mccId.trim(),
-        developerToken: source.developerToken.trim(),
-        planTier: source.planTier,
-        stripeCustomerId: auth.customerId,
-        stripeSetupIntentId: auth.setupIntentId,
+        email: draft.email.trim(),
+        verificationToken: draft.verificationToken,
+        fullName: parsed.data.fullName.trim(),
+        companyName: parsed.data.companyName.trim(),
+        password: parsed.data.password,
+        mccId: parsed.data.mccId.trim(),
+        developerToken: parsed.data.developerToken.trim(),
+        planTier: "AGENCY_PRO",
       });
 
       window.localStorage.removeItem(ONBOARDING_STORAGE_KEY);
       setCompletionInfo({
-        consoleLoginUrl: result.consoleLoginUrl || "http://localhost:5173/login",
+        consoleLoginUrl:
+          result.consoleLoginUrl || "http://localhost:5173/login",
         tenantName: result.tenant.name,
       });
 
       window.setTimeout(() => {
-        window.location.assign(result.consoleLoginUrl || "http://localhost:5173/login");
+        window.location.assign(
+          result.consoleLoginUrl || "http://localhost:5173/login"
+        );
       }, 1500);
     } catch (err) {
-      setBannerError(err instanceof Error ? err.message : "Workspace provisioning failed");
+      setBannerError(
+        err instanceof Error ? err.message : "Workspace provisioning failed"
+      );
     } finally {
       setBusyAction(null);
     }
   };
 
   const stepsMeta = [
-    { num: 1 as const, label: "Email OTP" },
-    { num: 2 as const, label: "Credentials" },
-    { num: 3 as const, label: "Plan & Stripe" },
+    { num: 1 as const, label: "1. Email OTP" },
+    { num: 2 as const, label: "2. Encrypted BYOK Vault" },
   ];
 
   return (
@@ -297,14 +254,15 @@ export default function RegisterPage() {
               dot
               className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
             >
-              Multi-Tenant SaaS Onboarding
+              Free BYOK Multi-Tenant Onboarding
             </Badge>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
               Launch Your Isolated Agency Workspace.
             </h1>
             <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-              Your Google Ads Developer Token &amp; OAuth credentials are encrypted
-              with AES-256-GCM at rest and strictly bound to your organization tenant.
+              Your Google Ads Developer Token &amp; OAuth credentials are
+              encrypted with AES-256-GCM at rest—with zero credit card or
+              subscription checkout gate.
             </p>
           </div>
 
@@ -312,10 +270,13 @@ export default function RegisterPage() {
             {[
               "Dedicated tenant isolation at the database & API boundary",
               "AES-256-GCM encrypted Google Ads Developer Token vault",
-              "14-day full-platform free trial — cancel anytime before billing",
-              "Direct console provisioning after Stripe card authorization",
+              "Zero credit card or subscription workflow required",
+              "Instant Agency Console provisioning in under 3 minutes",
             ].map((feat, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm text-zinc-300">
+              <div
+                key={idx}
+                className="flex items-center gap-3 text-sm text-zinc-300"
+              >
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
                 </div>
@@ -331,8 +292,12 @@ export default function RegisterPage() {
               <Lock className="w-4 h-4" />
             </div>
             <div className="text-xs">
-              <p className="font-semibold text-white">Zero-Knowledge Credential Vault</p>
-              <p className="text-zinc-400">Stripe PCI-DSS + AES-256-GCM Encryption</p>
+              <p className="font-semibold text-white">
+                Zero-Knowledge Credential Vault
+              </p>
+              <p className="text-zinc-400">
+                AES-256-GCM Encryption • 100% Data Ownership
+              </p>
             </div>
           </div>
           <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -351,8 +316,8 @@ export default function RegisterPage() {
                 {completionInfo.tenantName} Is Live!
               </h2>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Your 14-day trial is active and Google Ads credentials are encrypted.
-                Redirecting you to the Agency Console login...
+                Your workspace is provisioned and your Google Ads credentials
+                are encrypted. Redirecting you to the Agency Console login...
               </p>
               <div className="pt-2">
                 <Button
@@ -374,22 +339,22 @@ export default function RegisterPage() {
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                     Create Your Workspace
                   </h2>
-                  <Link
+                  <a
                     href="http://localhost:5173/login"
                     className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
                     Console Sign In &rarr;
-                  </Link>
+                  </a>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   {stepsMeta.map((s) => {
                     const active = draft.step === s.num;
                     const done = draft.step > s.num;
                     return (
                       <div
                         key={s.num}
-                        className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+                        className={`flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold transition-colors ${
                           active
                             ? "border-indigo-500 bg-indigo-500/10 text-indigo-500 dark:text-indigo-300"
                             : done
@@ -425,7 +390,9 @@ export default function RegisterPage() {
                         <input
                           type="email"
                           value={draft.email}
-                          onChange={(e) => updateDraft({ email: e.target.value })}
+                          onChange={(e) =>
+                            updateDraft({ email: e.target.value })
+                          }
                           placeholder="founder@agency.com"
                           className="flex-1 px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                         />
@@ -445,16 +412,24 @@ export default function RegisterPage() {
                         </Button>
                       </div>
                       {fieldErrors.email && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.email}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.email}
+                        </p>
                       )}
                     </div>
                   </form>
 
                   {draft.otpSent && (
-                    <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60">
+                    <form
+                      onSubmit={handleVerifyOtp}
+                      className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60"
+                    >
                       {devOtpPreview && (
                         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-300">
-                          Development preview OTP code: <strong className="font-mono tracking-widest">{devOtpPreview}</strong>
+                          Fallback verification code (Resend unconfigured):{" "}
+                          <strong className="font-mono tracking-widest">
+                            {devOtpPreview}
+                          </strong>
                         </div>
                       )}
                       <div>
@@ -466,12 +441,18 @@ export default function RegisterPage() {
                           inputMode="numeric"
                           maxLength={6}
                           value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                          onChange={(e) =>
+                            setOtpCode(
+                              e.target.value.replace(/\D/g, "").slice(0, 6)
+                            )
+                          }
                           placeholder="123456"
                           className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-lg tracking-[0.4em] text-center focus:border-indigo-500 focus:outline-none"
                         />
                         {fieldErrors.otpCode && (
-                          <p className="mt-1 text-xs text-rose-500">{fieldErrors.otpCode}</p>
+                          <p className="mt-1 text-xs text-rose-500">
+                            {fieldErrors.otpCode}
+                          </p>
                         )}
                       </div>
 
@@ -496,9 +477,12 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* STEP 2: USER PROFILE & GOOGLE ADS CREDENTIALS */}
+              {/* STEP 2: USER PROFILE & ENCRYPTED CREDENTIALS */}
               {draft.step === 2 && (
-                <form onSubmit={handleSaveCredentialsStep} className="space-y-4">
+                <form
+                  onSubmit={handleCompleteOnboarding}
+                  className="space-y-4"
+                >
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1.5">
@@ -507,12 +491,16 @@ export default function RegisterPage() {
                       <input
                         type="text"
                         value={draft.fullName}
-                        onChange={(e) => updateDraft({ fullName: e.target.value })}
+                        onChange={(e) =>
+                          updateDraft({ fullName: e.target.value })
+                        }
                         placeholder="Jane Founder"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.fullName && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.fullName}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.fullName}
+                        </p>
                       )}
                     </div>
 
@@ -523,12 +511,16 @@ export default function RegisterPage() {
                       <input
                         type="text"
                         value={draft.companyName}
-                        onChange={(e) => updateDraft({ companyName: e.target.value })}
+                        onChange={(e) =>
+                          updateDraft({ companyName: e.target.value })
+                        }
                         placeholder="Apex Growth Partners"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.companyName && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.companyName}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.companyName}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -542,7 +534,9 @@ export default function RegisterPage() {
                         <input
                           type={showPassword ? "text" : "password"}
                           value={draft.password}
-                          onChange={(e) => updateDraft({ password: e.target.value })}
+                          onChange={(e) =>
+                            updateDraft({ password: e.target.value })
+                          }
                           placeholder="Min 8 chars, upper & number"
                           className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                         />
@@ -551,11 +545,17 @@ export default function RegisterPage() {
                           onClick={() => setShowPassword((v) => !v)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                       {fieldErrors.password && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.password}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.password}
+                        </p>
                       )}
                     </div>
 
@@ -566,12 +566,16 @@ export default function RegisterPage() {
                       <input
                         type={showPassword ? "text" : "password"}
                         value={draft.confirmPassword}
-                        onChange={(e) => updateDraft({ confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          updateDraft({ confirmPassword: e.target.value })
+                        }
                         placeholder="Repeat password"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.confirmPassword && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.confirmPassword}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.confirmPassword}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -594,7 +598,9 @@ export default function RegisterPage() {
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.mccId && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.mccId}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.mccId}
+                        </p>
                       )}
                     </div>
 
@@ -605,12 +611,16 @@ export default function RegisterPage() {
                       <input
                         type="password"
                         value={draft.developerToken}
-                        onChange={(e) => updateDraft({ developerToken: e.target.value })}
+                        onChange={(e) =>
+                          updateDraft({ developerToken: e.target.value })
+                        }
                         placeholder="Your Google Ads API developer token"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.developerToken && (
-                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.developerToken}</p>
+                        <p className="mt-1 text-xs text-rose-500">
+                          {fieldErrors.developerToken}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -624,121 +634,27 @@ export default function RegisterPage() {
                       <ArrowLeft className="w-4 h-4" />
                       Back
                     </Button>
-                    <Button type="submit" variant="primary" size="lg" className="flex-1 justify-center">
-                      Continue to Plan &amp; Billing
-                      <ArrowRight className="w-4 h-4" />
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      disabled={busyAction === "register"}
+                      className="flex-1 justify-center"
+                    >
+                      {busyAction === "register" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Encrypting &amp; Provisioning...
+                        </>
+                      ) : (
+                        <>
+                          Launch Encrypted Workspace
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
-              )}
-
-              {/* STEP 3: PLAN SELECTION & STRIPE CHECKOUT */}
-              {draft.step === 3 && (
-                <div className="space-y-5">
-                  <div className="grid sm:grid-cols-3 gap-3">
-                    {ONBOARDING_TIERS.map((tier) => {
-                      const selected = draft.planTier === tier.id;
-                      return (
-                        <button
-                          key={tier.id}
-                          type="button"
-                          onClick={() => {
-                            updateDraft({ planTier: tier.id });
-                            setStripeSession(null);
-                          }}
-                          className={`text-left rounded-2xl border p-4 transition-all ${
-                            selected
-                              ? "border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500"
-                              : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-sm font-bold">{tier.name}</span>
-                            {tier.badge && (
-                              <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                                Popular
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 text-2xl font-extrabold">
-                            ${tier.monthlyPrice}
-                            <span className="text-xs font-normal text-zinc-500">/mo</span>
-                          </p>
-                          <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-                            {tier.tagline}
-                          </p>
-                          <ul className="mt-3 space-y-1 text-[11px] text-zinc-600 dark:text-zinc-300">
-                            {tier.highlights.map((h) => (
-                              <li key={h} className="flex items-center gap-1.5">
-                                <Check className="w-3 h-3 text-emerald-400 shrink-0" />
-                                <span>{h}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {!stripeSession ? (
-                    <div className="flex items-center justify-between gap-3 pt-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => updateDraft({ step: 2 })}
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        size="lg"
-                        disabled={busyAction === "create_setup"}
-                        onClick={() => handleStartStripeCheckout(draft.planTier)}
-                        className="flex-1 justify-center"
-                      >
-                        {busyAction === "create_setup" ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Preparing Stripe Checkout...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4" />
-                            Continue to Stripe Card Authorization
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold">
-                          Payment Method ({draft.planTier.replace("_", " ")})
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStripeSession(null);
-                            updateDraft({ step: 2 });
-                          }}
-                          className="text-xs text-zinc-400 hover:text-zinc-200"
-                        >
-                          Edit Credentials
-                        </button>
-                      </div>
-
-                      <StripeCardCapture
-                        session={stripeSession}
-                        email={draft.email}
-                        fullName={draft.fullName}
-                        isProvisioning={busyAction === "register"}
-                        onAuthorized={handleFinalizeRegistration}
-                      />
-                    </div>
-                  )}
-                </div>
               )}
             </>
           )}

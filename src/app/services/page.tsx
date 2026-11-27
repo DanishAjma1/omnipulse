@@ -21,6 +21,7 @@ import { BentoCard } from "@/components/ui/BentoCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { NestedScrollytelling } from "@/components/scrolly/NestedScrollytelling";
+import { FunnelStudioShowcaseStory } from "@/components/services/FunnelStudioShowcaseStory";
 
 export default function ServicesPage() {
   const [activeMetricTab, setActiveMetricTab] = useState<"pmax" | "rsa" | "demand">("pmax");
@@ -460,6 +461,9 @@ export default function ServicesPage() {
         </div>
       </AnimatedSection>
 
+      {/* 2b. 360VH SCROLL-STORY FUNNEL STUDIO SHOWCASE */}
+      <FunnelStudioShowcaseStory />
+
       {/* 3. INTEGRATIONS (VISUAL NODE-BASED ECOSYSTEM DIAGRAM) */}
       <AnimatedSection
         id="integrations"
@@ -661,11 +665,11 @@ export default function ServicesPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button variant="primary" size="lg" href="/register">
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button variant="secondary" size="lg" href="/pricing">
-              View Pricing
+              Compare Editions
             </Button>
           </div>
         </div>

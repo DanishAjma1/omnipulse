@@ -9,9 +9,16 @@ import { useTheme } from "../theme/ThemeProvider";
 import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
 
+const CONSOLE_LOGIN_URL =
+  process.env.NEXT_PUBLIC_CONSOLE_URL?.replace(/\/$/, "")
+    ? `${process.env.NEXT_PUBLIC_CONSOLE_URL.replace(/\/$/, "")}/login`
+    : "http://localhost:5173/login";
+
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/services" },
+  { label: "Platform", href: "/services" },
+  { label: "Docs & Guide", href: "/docs" },
+  { label: "Security", href: "/security" },
   { label: "Pricing", href: "/pricing" },
   { label: "Contact", href: "/contact" },
 ];
@@ -81,13 +88,13 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Login text link */}
-          <Link
-            href="/register"
+          {/* Console Login external/portal link */}
+          <a
+            href={CONSOLE_LOGIN_URL}
             className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
-            Login
-          </Link>
+            Console Login
+          </a>
 
           {/* Solid accent Get Started button */}
           <Button variant="primary" size="md" href="/register">
@@ -148,13 +155,13 @@ export function Navbar() {
               );
             })}
             <div className="pt-4 flex flex-col gap-2.5">
-              <Link
-                href="/register"
+              <a
+                href={CONSOLE_LOGIN_URL}
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-center py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Login to Portal
-              </Link>
+                Login to Agency Console
+              </a>
               <Button
                 variant="primary"
                 size="md"
