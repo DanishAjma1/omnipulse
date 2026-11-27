@@ -16,6 +16,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://omnipulse.io"),
+  icons: {
+    icon: [
+      { url: "/omnipulse-favicon.svg?v=2", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png?v=2", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: ["/favicon-32x32.png?v=2"],
+    apple: [
+      { url: "/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" },
+    ],
+  },
   title: {
     default:
       "OmniPulse • White-Label Agency Operations, Automated Local Ads & Enterprise CRM Analytics",
