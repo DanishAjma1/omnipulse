@@ -8,8 +8,10 @@ import {
   Check,
   CheckCircle2,
   Code2,
+  Copy,
   Cpu,
   Database,
+  KeyRound,
   Layers,
   Lock,
   Mail,
@@ -26,6 +28,231 @@ import { Button } from "@/components/ui/Button";
 import { ConsoleGuideScrollStory } from "@/components/docs/ConsoleGuideScrollStory";
 
 type RoleKey = "ADMIN" | "MANAGER" | "CLIENT";
+type CredentialGuideKey =
+  | "dev-token"
+  | "oauth-client"
+  | "pull-analytics"
+  | "meta-resend-ai";
+
+interface CredentialSetupPlaybook {
+  id: CredentialGuideKey;
+  tabLabel: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  whereToGet: string;
+  steps: Array<{ heading: string; detail: string }>;
+  envKeys: Array<{ key: string; example: string; purpose: string }>;
+  verificationCheck: string;
+}
+
+const CREDENTIAL_PLAYBOOKS: CredentialSetupPlaybook[] = [
+  {
+    id: "dev-token",
+    tabLabel: "1. Google Developer Token",
+    badge: "Google Ads Manager (MCC)",
+    title: "How to Obtain Your Google Ads Developer Token & MCC ID",
+    subtitle:
+      "Every Google Ads API request requires a 10-digit Manager Account (MCC) ID and an approved 20–32 character Developer Token.",
+    whereToGet: "ads.google.com → Google Ads Manager Account → Admin → API Center",
+    steps: [
+      {
+        heading: "Create or Open a Google Ads Manager Account (MCC)",
+        detail:
+          "Sign in at ads.google.com/home/tools/manager-accounts/. Developer Tokens are only issued inside Manager Accounts (never standalone single-advertiser accounts). Copy the 10-digit XXX-XXX-XXXX MCC ID from the top-right bar.",
+      },
+      {
+        heading: "Navigate to Admin (Tools & Settings) → Setup → API Center",
+        detail:
+          "In the left navigation of your Google Ads Manager Account, open Admin (or the wrench icon Tools & Settings), expand Setup, and click API Center.",
+      },
+      {
+        heading: "Submit the API Access Registration Form",
+        detail:
+          "Provide your agency website URL, primary engineering/operations email, and select 'Internal / Agency Client Campaign Management' to immediately generate your 22-character Developer Token.",
+      },
+      {
+        heading: "Upgrade Token Level from Test to Explorer / Basic Access",
+        detail:
+          "Newly generated tokens start at Test Access (works only with Google Ads test accounts). Click 'Apply for Basic Access' right inside API Center to unlock 15,000 live operations/day across production client accounts (or Standard Access for uncapped volume).",
+      },
+      {
+        heading: "Seal Inside OmniPulse Vault (/register or /settings)",
+        detail:
+          "Paste your 10-digit MCC ID and Developer Token into OmniPulse during onboarding or inside Workspace Settings (/settings). OmniPulse validates format via Zod and encrypts it at rest with AES-256-GCM.",
+      },
+    ],
+    envKeys: [
+      {
+        key: "GOOGLE_MCC_ID",
+        example: "115-593-5025 (or 1155935025)",
+        purpose: "Top-level Manager Account used to discover child client accounts",
+      },
+      {
+        key: "GOOGLE_DEVELOPER_TOKEN",
+        example: "AB9x_kL29mPq01ZzW8vT4r",
+        purpose: "Authenticates agency API quota with Google Ads v17+/v25",
+      },
+    ],
+    verificationCheck:
+      "In Agency Console → /settings, verify 'MCC Account ID' displays ***-***-XXXX and 'Developer Token' reads 'Encrypted & Stored'.",
+  },
+  {
+    id: "oauth-client",
+    tabLabel: "2. Client ID & Client Secret",
+    badge: "Google Cloud Console OAuth 2.0",
+    title: "How to Create Google OAuth Client ID & Client Secret",
+    subtitle:
+      "OAuth 2.0 credentials let OmniPulse exchange short-lived access tokens on demand without ever storing your Google password.",
+    whereToGet: "console.cloud.google.com → APIs & Services → Credentials",
+    steps: [
+      {
+        heading: "Create a Google Cloud Project & Enable Google Ads API",
+        detail:
+          "Open console.cloud.google.com, create a project (e.g. 'OmniPulse Agency Console'), open APIs & Services → Library, search for 'Google Ads API', and click Enable.",
+      },
+      {
+        heading: "Configure the OAuth Consent Screen & Scope",
+        detail:
+          "Go to APIs & Services → OAuth consent screen. Choose External (or Internal for Google Workspace), enter your agency name and support email, and add scope: https://www.googleapis.com/auth/adwords.",
+      },
+      {
+        heading: "Publish Consent App to Production (Prevent 7-Day Expiry)",
+        detail:
+          "On the OAuth consent screen, click 'Publish App' to move out of 'Testing' mode—otherwise Google automatically expires OAuth refresh tokens every 7 days.",
+      },
+      {
+        heading: "Create OAuth 2.0 Client ID (Web Application)",
+        detail:
+          "Open APIs & Services → Credentials → + Create Credentials → OAuth client ID. Select Application type: 'Web application' and name it 'OmniPulse Console'.",
+      },
+      {
+        heading: "Register Authorized Redirect URI & Copy Keys",
+        detail:
+          "Under Authorized redirect URIs, add https://<your-domain>/api/v1/auth/google/callback (plus http://localhost:4100/api/v1/auth/google/callback for local dev). Click Create, copy GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, then click 'Connect Google OAuth' inside /settings.",
+      },
+    ],
+    envKeys: [
+      {
+        key: "GOOGLE_CLIENT_ID",
+        example: "103212666592-...apps.googleusercontent.com",
+        purpose: "Identifies your Google Cloud OAuth Web Application",
+      },
+      {
+        key: "GOOGLE_CLIENT_SECRET",
+        example: "GOCSPX-rTw1xT-huZacFGo9qrjsy...",
+        purpose: "Exchanges authorization codes & refreshes access tokens",
+      },
+      {
+        key: "Callback Redirect URI",
+        example: "https://<your-domain>/api/v1/auth/google/callback",
+        purpose: "Receives Google's OAuth code and vaults the encrypted refresh token",
+      },
+    ],
+    verificationCheck:
+      "Click 'Connect Google OAuth' in /settings, approve Google consent with the email that manages your MCC, and verify status turns 'Connected'.",
+  },
+  {
+    id: "pull-analytics",
+    tabLabel: "3. Pull MCC Analytics Guide",
+    badge: "3-Tier Telemetry & GAQL Sync",
+    title: "How to Sync Child Accounts & Pull Multi-Channel Analytics",
+    subtitle:
+      "Once your Developer Token and OAuth link are active, pull 30-day rolling hierarchy telemetry across every client account in clicks.",
+    whereToGet: "Agency Console → /admin/dashboard • /admin/analytics • /analytics/deep-dive",
+    steps: [
+      {
+        heading: "Trigger MCC Child Account Discovery",
+        detail:
+          "Open Executive Control Room (/admin/dashboard) or Client Analytics (/admin/analytics) and click 'Sync MCC'. OmniPulse queries customer_client via GAQL, skips manager self-loops, and isolates any suspended child account so active clients always complete.",
+      },
+      {
+        heading: "Select Client Account & Date Window Preset",
+        detail:
+          "Use the account selector in the header or MCC Hierarchy Matrix to pick any discovered client, then toggle date windows (Today, Last 7 Days, Last 30 Days) mapped consistently across Google GAQL and Meta Insights.",
+      },
+      {
+        heading: "Drill Through the 3-Tier Ad Hierarchy",
+        detail:
+          "Inspect top-level KPIs in /campaigns, click any campaign to inspect /ad-groups, and drill into /ads (Responsive Search Ads) or /asset-groups (Performance Max) with live status toggles and daily budget micro controls.",
+      },
+      {
+        heading: "Audit Cross-Client Financials in Deep-Dive (Admin Only)",
+        detail:
+          "Open /analytics/deep-dive to compare blended spend, conversions, ROAS, CPA, CTR, and Impression Share across your entire agency roster—protected behind strict ADMIN-only RBAC.",
+      },
+      {
+        heading: "Ration Read-Only Portals for External Clients",
+        detail:
+          "Open /admin/clients to allocate a specific ad account or campaign list to a retainer client, then click '1-Click Portal Preview' to verify their exact /portal/analytics view.",
+      },
+    ],
+    envKeys: [
+      {
+        key: "POST /api/v1/analytics/sync/mcc",
+        example: "Full MCC child discovery + 30d metrics",
+        purpose: "Populates google_clients, google_campaigns & metric snapshots",
+      },
+      {
+        key: "Nightly 01:00 Auto-Sync",
+        example: "Self-rescheduling background sync",
+        purpose: "Refreshes rolling 30-day cache & prunes stale snapshot rows",
+      },
+    ],
+    verificationCheck:
+      "Verify child accounts populate inside the MCC Hierarchy Matrix and multi-series Quote Value / Spend / Cost-per-Lead charts render.",
+  },
+  {
+    id: "meta-resend-ai",
+    tabLabel: "4. Meta, Resend & Gemini Keys",
+    badge: "Outreach, Social Ads & Funnels",
+    title: "How to Configure Meta Marketing API, Resend Email & Blob/AI Keys",
+    subtitle:
+      "Complete your full-stack agency environment for paid social campaigns, cold outreach sequences, webhook tracking, and funnel media CDN.",
+    whereToGet: "business.facebook.com • resend.com/api-keys • vercel.com/storage/blob",
+    steps: [
+      {
+        heading: "Meta System User Permanent Token & Ad Account ID",
+        detail:
+          "In Meta Business Settings → Users → System Users, create an Admin System User, assign your Ad Account and Facebook Page with Full Control, and click 'Generate New Token' with ads_management and ads_read scopes.",
+      },
+      {
+        heading: "Verify Sending Domain & Create Resend API Key",
+        detail:
+          "In resend.com, add and verify your sending domain's DKIM/SPF DNS records, create a Sending API Key (re_...), and set RESEND_FROM_EMAIL to 'Your Agency <outreach@yourdomain.com>'.",
+      },
+      {
+        heading: "Connect Resend Webhook Signing Secret (Svix HMAC)",
+        detail:
+          "In Resend → Webhooks, register https://<your-domain>/api/v1/webhooks/resend for email.delivered, email.opened, email.clicked, email.bounced, and email.complained events, then copy the whsec_... signing secret.",
+      },
+      {
+        heading: "Optional Gemini BYOK Key & Vercel Blob Token",
+        detail:
+          "Save a per-tenant Gemini API Key inside /settings (encrypted with AES-256-GCM) for optional AI-assisted copy, and set BLOB_READ_WRITE_TOKEN to host up to 3 persistent funnel images on Vercel Blob CDN.",
+      },
+    ],
+    envKeys: [
+      {
+        key: "META_PERMANENT_ACCESS_TOKEN / META_AD_ACCOUNT_ID",
+        example: "EAA... / act_1234567890",
+        purpose: "Powers Meta Campaign → Ad Set → Ad Creative studio & insights",
+      },
+      {
+        key: "RESEND_API_KEY / RESEND_WEBHOOK_SECRET",
+        example: "re_... / whsec_...",
+        purpose: "Dispatches OTPs, lead alerts, p-limit(2) bursts & Svix events",
+      },
+      {
+        key: "BLOB_READ_WRITE_TOKEN / GEMINI_API_KEY",
+        example: "vercel_blob_rw_... / AIzaSy...",
+        purpose: "Hosts Scroll-Story funnel visuals & optional AI copy generation",
+      },
+    ],
+    verificationCheck:
+      "Send a test outreach email from /admin/outreach and confirm Delivered/Opened events stream into the live webhook timeline.",
+  },
+];
 
 const ROLE_SIMULATOR: Record<
   RoleKey,
@@ -40,59 +267,64 @@ const ROLE_SIMULATOR: Record<
 > = {
   ADMIN: {
     title: "Admin (Agency Owner / Workspace Founder)",
-    tagline: "Unrestricted command over operations, vault encryption, billing & team.",
+    tagline: "Unrestricted command over operations, vault encryption, team & audit logs.",
     whoFor:
-      "Agency founders and technical directors who own the Google Ads MCC, Meta System Token, and Stripe billing relationship.",
+      "Agency founders and technical directors who own the Google Ads MCC, Meta System Token, and workspace governance.",
     defaultLanding: "/admin/dashboard",
     allowed: [
       "Executive Control Room & Cross-Client Deep-Dive Analytics (/analytics/deep-dive)",
-      "Zero-Knowledge Credential Vault (MCC ID, Developer Token & OAuth rotation)",
-      "Payment Methods, Plan Upgrades & Subscription Controls (/settings/billing)",
-      "Provisioning Optional Managers & Rationing Client Portal Access (/admin/clients)",
-      "All CRM Deals, Contacts 360°, Scroll-Story Funnels, SEO & Resend Outreach",
+      "Zero-Knowledge Credential Vault (MCC ID, Developer Token, Gemini Key & OAuth rotation)",
+      "Provisioning Managers (/admin/team), Client Portals & 1-Click Portal Impersonation (/admin/clients)",
+      "Immutable Security Audit Logs (/admin/audit-logs) & Self-Hosted Escalation (/admin/contact)",
+      "Full CRM Kanban, Won-Deal Client Conversion, Contacts 360°, Tasks, Tickets, Funnels, SEO & Outreach",
     ],
-    restricted: ["None — Full root tenant authority (password required to rotate keys)"],
+    restricted: ["None — Full root tenant authority (password required to rotate encrypted keys)"],
   },
   MANAGER: {
     title: "Manager (Optional Hands-On Operations Staff)",
-    tagline: "Friction-free daily execution without exposing cards, keys, or deep-dive financials.",
+    tagline: "Friction-free daily execution across CRM, Funnels, SEO, Outreach & Campaigns.",
     whoFor:
       "Account managers, media buyers, and sales operators running daily client deliverables without needing manual per-item admin allotment.",
-    defaultLanding: "/campaigns (or /crm/overview)",
+    defaultLanding: "/crm/overview",
     allowed: [
-      "CRM Deals Kanban, Contacts 360°, Call Notes & Daily Follow-Up Tasks",
-      "400vh+ Scroll-Story Funnel Studio & Vercel Blob Media Uploads",
-      "Worker-Thread Website SEO Audits & Sitemap XML Generation",
-      "Resend Cold Outreach Sequences & Open/Click Activity Timelines",
-      "Compulsory Campaign Creation & Operational Status Controls",
+      "CRM Operations Home (/crm/overview), Deals Kanban (/crm/deals) & Tasks (/crm/tasks)",
+      "Contacts & Leads 360° Drawer (/crm/contacts) with 1-Click Domain SEO Audit Bridge",
+      "Client Request Tickets (/crm/tickets) & Public Quote Form Inbox (/admin/leads)",
+      "400vh+ Scroll-Story Funnel Studio, Worker-Thread SEO Audits & Resend Cold Outreach",
+      "3-Tier Google & Meta Campaign Studio (/campaigns & /campaigns/create)",
     ],
     restricted: [
-      "Blocked (403 + Hidden): Payment Methods, Invoices & Subscription Cancellation",
-      "Blocked (403 + Hidden): Google/Meta Developer Tokens & OAuth Vault",
+      "Blocked (403 + Hidden): Google/Meta Developer Tokens, Gemini Key & OAuth Vault (/settings)",
       "Blocked (403 + Hidden): Cross-Client Financial Deep-Dive (/analytics/deep-dive)",
+      "Blocked (403 + Hidden): Team Admin & Immutable Audit Logs (/admin/team, /admin/audit-logs)",
     ],
   },
   CLIENT: {
     title: "Client (External Ad-Management Retainer Client)",
-    tagline: "Clean, read-only performance transparency scoped strictly to their own ad account.",
+    tagline: "Clean, read-only performance transparency plus direct support ticket requests.",
     whoFor:
       "Business owners who hired your marketing agency to manage their Google Ads or Meta Ads campaigns.",
     defaultLanding: "/portal/analytics",
     allowed: [
       "Rationed Google Ads & Meta Campaign KPIs (Spend, Clicks, Conversions, CTR, ROAS)",
-      "Time-series performance charts for their explicitly granted ClientAdAllocation scope",
-      "Shared SEO health summaries & campaign support requests",
+      "Time-series performance charts locked strictly to their ClientAdAllocation scope",
+      "Submit structured Campaign / Creative / Budget Request Tickets directly to agency staff",
     ],
     restricted: [
-      "Zero visibility into other agency clients or agency-wide MCC hierarchy",
-      "Read-only scope — cannot mutate bids, budgets, funnels, or outreach lists",
+      "Zero visibility into other agency clients, internal CRM deals, or MCC hierarchy",
+      "Read-only ad scope — cannot mutate bids, budgets, funnels, or outreach lists",
     ],
   },
 };
 
 interface DocModuleGuide {
   id: string;
-  category: "Onboarding" | "Ads & Analytics" | "Growth Tools" | "Security & API";
+  category:
+    | "Credentials & Setup"
+    | "Ads & Analytics"
+    | "CRM & Leads"
+    | "Growth Studio"
+    | "Governance & Portals";
   title: string;
   route: string;
   summary: string;
@@ -103,127 +335,204 @@ interface DocModuleGuide {
 const MODULE_GUIDES: DocModuleGuide[] = [
   {
     id: "quickstart",
-    category: "Onboarding",
-    title: "1. Two-Step Free BYOK Workspace Setup",
+    category: "Credentials & Setup",
+    title: "1. Two-Step Free BYOK Workspace Provisioning",
     route: "/register → /settings",
     summary:
-      "Create your isolated agency tenant in under 3 minutes with verified email ownership and encrypted API keys.",
+      "Launch an isolated multi-tenant workspace in under 3 minutes with verified email ownership and encrypted API keys.",
     steps: [
       "Enter your work email on /register to receive a 6-digit verification code via Resend.",
-      "Provide your 10-digit Google Ads MCC ID (XXX-XXX-XXXX) and 20–32 character Developer Token.",
-      "Connect Google OAuth in Settings (/settings) so on-demand access tokens refresh automatically without background polling.",
+      "Submit your agency name, strong password, 10-digit Google Ads MCC ID, and 20–32 character Developer Token.",
+      "Open /settings inside the Agency Console and click 'Connect Google OAuth' to link your encrypted refresh token.",
     ],
     proTip:
-      "All secrets are encrypted immediately with AES-256-GCM. Rotating credentials later requires re-entering your current account password.",
+      "All secrets are sealed immediately with AES-256-GCM. Rotating credentials later requires re-entering your current account password.",
+  },
+  {
+    id: "oauth-vault-rotation",
+    category: "Credentials & Setup",
+    title: "2. Rotating Developer Tokens, OAuth & Gemini API Keys",
+    route: "/settings",
+    summary:
+      "Manage Google Ads MCC IDs, Developer Tokens, OAuth refresh tokens, and optional BYOK Gemini keys in a zero-knowledge vault.",
+    steps: [
+      "Open /settings to inspect masked status indicators (raw tokens are never returned in API responses).",
+      "Enter replacement MCC ID, Google Developer Token, or Gemini API Key and authorize with your current console password.",
+      "If Google OAuth ever expires or is revoked, click 'Reconnect Google OAuth' to complete a fresh consent handshake.",
+    ],
+    proTip:
+      "Every credential update is recorded in /admin/audit-logs with actor identity and timestamp—without ever logging secret values.",
   },
   {
     id: "mcc-sync",
     category: "Ads & Analytics",
-    title: "2. Google Ads MCC Sync & 3-Tier Reporting",
-    route: "/admin/dashboard • /campaigns • /ad-groups • /ads",
+    title: "3. Pulling MCC Analytics, 3-Tier Drilldown & Deep-Dive",
+    route: "/admin/dashboard • /admin/analytics • /analytics/deep-dive",
     summary:
-      "Discover every child client account under your MCC and inspect normalized metrics from Campaign down to individual Ads.",
+      "Discover every child client account under your MCC and pull normalized performance telemetry from Campaign down to individual Ads.",
     steps: [
-      "Click Sync MCC on the Control Room dashboard to discover all non-manager child accounts (excluding self-MCC loops).",
-      "Drill down from /campaigns into /ad-groups, /ads, or /asset-groups for Performance Max.",
-      "Switch date presets (Today, Last 7 Days, Last 30 Days) in the top header—mapped natively to both Google GAQL and Meta Insights.",
+      "Click 'Sync MCC' on /admin/dashboard to discover all non-manager child accounts via Google Ads GAQL.",
+      "Pick any client account and date preset (Today, Last 7 Days, Last 30 Days) to inspect multi-series spend, conversion, and ROAS charts.",
+      "Drill from /campaigns → /ad-groups → /ads or /asset-groups, or open /analytics/deep-dive for cross-client financial comparison.",
     ],
     proTip:
-      "OmniPulse automatically runs a self-rescheduling 01:00 nightly sync and prunes rolling cache rows older than 30 days.",
+      "OmniPulse runs a self-rescheduling 01:00 nightly sync and isolates per-client errors so one suspended account never blocks the rest of your MCC.",
   },
   {
     id: "campaign-studio",
     category: "Ads & Analytics",
-    title: "3. Campaign Studio (Search, PMax & Meta)",
+    title: "4. Multi-Network Campaign Studio (Search RSA, PMax & Meta)",
     route: "/campaigns/create",
     summary:
-      "Launch compliant multi-network ad structures without switching browser tabs or fighting raw API field masks.",
+      "Launch compliant Google Search, Performance Max, Demand Gen, and Meta 3-tier ad structures from a single guided workflow.",
     steps: [
-      "Choose Google Ads (Search, Performance Max, Smart, Demand Gen) or Meta Ads.",
-      "Configure daily budgets, bidding strategy (Maximize Conversions, Target CPA, Target ROAS), and geo targeting.",
-      "Attach Ad Groups + Responsive Search Ads (up to 15 headlines) or PMax Asset Groups in one guided flow.",
+      "Select target client account and network: Google Ads (Search, PMax, Demand Gen) or Meta Marketing API.",
+      "Configure daily budget guardrails, bidding strategy (Maximize Conversions, Target CPA, Target ROAS), and geo/language targeting.",
+      "Build Ad Groups + Responsive Search Ads (up to 15 headlines & 4 descriptions) or PMax Asset Groups and publish live.",
     ],
     proTip:
-      "Deleting a Google campaign sets status to REMOVED in compliance with Google Ads API v17+ rules—preserving historical spend integrity.",
+      "Archiving a Google campaign sets status=REMOVED in strict compliance with Google Ads API rules—preserving historical spend ledgers.",
+  },
+  {
+    id: "crm-kanban",
+    category: "CRM & Leads",
+    title: "5. CRM Operations Home & Kanban Deals Pipeline",
+    route: "/crm/overview • /crm/deals",
+    summary:
+      "Track every agency prospect from initial inbound inquiry to signed retainer on an interactive Kanban board with 1-click client conversion.",
+    steps: [
+      "Open /crm/overview to monitor open pipeline value, deal stage velocity, overdue tasks, and recent team activity.",
+      "Move deals across NEW → QUALIFIED → PROPOSAL → NEGOTIATION → WON / LOST in /crm/deals (automatically logging STAGE_CHANGE events).",
+      "Click 'Convert Won Deal to Client' on any WON card to atomically create their CrmCompany, CLIENT portal login, and Google/Meta ad allocation.",
+    ],
+    proTip:
+      "Converting a Won Deal automatically emails or surfaces onboarding credentials so a new retainer client gets portal access in seconds.",
+  },
+  {
+    id: "crm-contacts-360",
+    category: "CRM & Leads",
+    title: "6. Contacts & Leads 360° Drawer + 1-Click SEO Audit Bridge",
+    route: "/crm/contacts",
+    summary:
+      "Inspect a complete 360° timeline for every lead—combining notes, deals, tasks, outreach events, and instant domain SEO audits.",
+    steps: [
+      "Click any contact in /crm/contacts to slide open their Contact 360° Drawer with full company and deal context.",
+      "Log call notes, meeting summaries, or follow-up tasks directly onto the contact's chronological activity stream.",
+      "Click 'Run Domain SEO Audit' inside the drawer—OmniPulse infers the business domain from their work email and attaches a live crawl report.",
+    ],
+    proTip:
+      "Running a 1-click SEO Audit from Contact 360° gives sales reps concrete Core Web Vitals and metadata proof before jumping on a discovery call.",
+  },
+  {
+    id: "crm-tasks-tickets",
+    category: "CRM & Leads",
+    title: "7. Daily Follow-Up Tasks & Retainer Client Request Tickets",
+    route: "/crm/tasks • /crm/tickets",
+    summary:
+      "Keep account managers on schedule with prioritized task queues and a structured support desk for active retainer clients.",
+    steps: [
+      "Assign due-dated follow-up tasks linked to contacts or deals in /crm/tasks and filter by priority or completion status.",
+      "Retainer clients submit campaign, creative, or budget requests straight from their /portal/analytics dashboard.",
+      "Staff triage tickets through OPEN → IN_PROGRESS → RESOLVED inside /crm/tickets and post official replies back to the client.",
+    ],
+    proTip:
+      "Replacing scattered WhatsApp/Slack client pings with /crm/tickets keeps every retainer change request auditable and timestamped.",
+  },
+  {
+    id: "leads-inbox-capture",
+    category: "CRM & Leads",
+    title: "8. Public Quote Form Inbox & Funnel-to-CRM Auto-Capture",
+    route: "/admin/leads • /request-quote • /f/:slug",
+    summary:
+      "Capture high-intent inbound leads from both the multi-file quote request form and published Scroll-Story Funnels straight into CRM.",
+    steps: [
+      "Share /request-quote for custom web/agency project inquiries—prospects attach up to 5 brief files protected by dedicated rate limiters.",
+      "Review submissions, download attachments, and update status inside /admin/leads (with instant Resend email alerts to your inbox).",
+      "Every lead form submitted on a published /f/:slug Scroll-Story Funnel automatically upserts a CRM Contact and opens a NEW Kanban Deal.",
+    ],
+    proTip:
+      "Zero Zapier webhooks required—funnel conversions appear immediately in /crm/deals and /crm/contacts with source attribution.",
   },
   {
     id: "funnel-studio",
-    category: "Growth Tools",
-    title: "4. 400vh+ Scroll-Story Funnel Studio & Vercel Blob",
+    category: "Growth Studio",
+    title: "9. 400vh+ Scroll-Story Funnel Studio & Vercel Blob CDN",
     route: "/admin/funnels",
     summary:
-      "Build high-converting, long-form scroll-story landing pages with zero AI wait time and complete visual editing.",
+      "Design long-form, high-converting scroll-story landing pages across three bespoke visual architectures with live click-to-edit preview.",
     steps: [
-      "Pick one of 3 distinct 400vh+ templates: Obsidian Command (frosted pill nav), Swiss Daylight Studio (editorial masthead), or Velocity Matrix HUD (floating capsule nav).",
-      "Toggle between Editor, Split Live, and Full 400vh Preview modes; click any block or Edit pill inside the sandboxed iframe to jump straight to its inspector tab.",
-      "Customize Navbar & Footer links, remove or restore any of the 12 equal-spaced acts, and upload up to 3 persistent images per template to Vercel Blob CDN.",
+      "Choose Obsidian Command (dark B2B), Swiss Daylight Studio (ivory editorial), or Velocity Matrix HUD (emerald direct-response).",
+      "Switch between Editor, Split Live, and Full 400vh Preview; click any section inside the sandboxed iframe to edit copy, CTAs, or nav/footer links.",
+      "Remove or restore any of the 12 acts, upload up to 3 persistent images to Vercel Blob CDN, check the live SERP preview, and publish.",
     ],
     proTip:
-      "Use 'Apply Theme' to switch the entire Navbar, Hero, and color architecture live while keeping all your headlines, links, and uploaded Blob images intact.",
+      "Click 'Apply Theme' anytime to swap the entire typography, navbar, and surface architecture without losing your copy or uploaded Blob images.",
   },
   {
     id: "seo-engine",
-    category: "Growth Tools",
-    title: "5. Worker-Thread Technical SEO Crawler & Sitemap Generator",
+    category: "Growth Studio",
+    title: "10. Worker-Thread Technical SEO Crawler & XML Sitemaps",
     route: "/admin/seo",
     summary:
-      "Audit prospect or client websites asynchronously for broken metadata, heading structure, and Core Web Vitals.",
+      "Crawl prospect or client domains on isolated CPU worker threads to score metadata, headings, links, and generate drop-in XML sitemaps.",
     steps: [
-      "Enter any target domain and max page budget (up to 50+ pages) and click Start Audit.",
-      "A bounded Node.js Worker Thread pool crawls pages in the background so API latency never spikes.",
-      "Inspect per-page SEO scores in the slide-over drawer and export CSV reports or drop-in sitemap.xml files in one click.",
+      "Enter any target URL and page crawl budget in /admin/seo and click Start Audit.",
+      "A bounded Node.js Worker Thread pool crawls pages asynchronously so API latency never spikes.",
+      "Open the report drawer to inspect per-page health scores (0–100), export CSV diagnostics, or download standards-compliant sitemap.xml.",
     ],
     proTip:
-      "Pair an SEO Audit score with Cold Outreach to send prospects undeniable proof of missing revenue opportunities before pitching.",
+      "Raw XML sitemaps are persisted in PostgreSQL and served directly at GET /api/v1/seo/reports/:id/sitemap.xml.",
   },
   {
     id: "outreach-webhooks",
-    category: "Growth Tools",
-    title: "6. Unified Resend Cold Outreach & Webhook Telemetry",
+    category: "Growth Studio",
+    title: "11. Resend Cold Outreach, p-limit(2) Bursts & Svix Webhooks",
     route: "/admin/outreach",
     summary:
-      "Import prospect lists, personalize merge-tag sequences, and track every open, click, bounce, and unsubscribe live.",
+      "Run personalized merge-tag email sequences with automatic concurrency throttling, daily quota caps, and real-time webhook attribution.",
     steps: [
-      "Bulk-import contacts via CSV or paste list, then compose an HTML campaign with {{name}} and {{company}} merge tags.",
-      "Launch burst sends paced safely through p-limit(2) concurrency so domain reputation stays protected.",
-      "Monitor the live Svix-verified Resend webhook stream as prospects receive, open, and click your links.",
+      "Import contacts via CSV or paste list in /admin/outreach and craft HTML templates using {{name}} and {{company}} variables.",
+      "Dispatch campaigns through our p-limit(2) burst queue with automatic daily send guardrails and RFC 8058 one-click unsubscribe headers.",
+      "Track Sent → Delivered → Opened → Clicked → Bounced events live via cryptographic Svix HMAC webhooks.",
     ],
     proTip:
-      "EmailSend records are idempotent on (campaignId, contactId)—re-triggering a campaign never double-emails a prospect and automatically skips unsubscribed contacts.",
+      "Hard bounces and spam complaints automatically suppress the contact across your tenant so sender reputation stays protected.",
   },
   {
     id: "rbac-portals",
-    category: "Security & API",
-    title: "7. Client Portals & Multi-Role Access Rationing",
+    category: "Governance & Portals",
+    title: "12. Rationed Client Portals & 1-Click Admin Impersonation",
     route: "/admin/clients → /portal/analytics",
     summary:
-      "Give every retainer client a dedicated login locked strictly to their own Google or Meta ad accounts.",
+      "Provision read-only analytics portals mathematically locked to each client's allocated ad accounts or specific campaigns.",
     steps: [
-      "Create a Client login in /admin/clients and grant account-wide (campaignId = null) or single-campaign visibility.",
-      "Every client read endpoint runs enforceClientScope before touching Google/Meta—preventing cross-client data leaks.",
-      "Add optional Manager accounts for internal staff so your team can run campaigns, funnels, and outreach without accessing Billing or API keys.",
+      "Open /admin/clients, create a Client login, and select their permitted Google Ads or Meta account/campaign scope from visual dropdowns.",
+      "Click '1-Click Portal Preview' as Admin to inspect the exact scoped dashboard the client will see.",
+      "Suspend or reinstate client portal access instantly with one toggle—revoking access on the very next API request.",
     ],
     proTip:
-      "Suspend or reinstate any client or staff login instantly with a single toggle—revoking JWT access on the very next request.",
+      "enforceClientScope injects permitted campaignIds directly into downstream Google/Meta queries—preventing cross-client ID enumeration.",
   },
   {
-    id: "api-webhooks",
-    category: "Security & API",
-    title: "8. Webhook Signatures & API Envelope Reference",
-    route: "/api/v1/*",
+    id: "team-audit-logs",
+    category: "Governance & Portals",
+    title: "13. Team Managers, Role Guardrails & Immutable Audit Logs",
+    route: "/admin/team • /admin/audit-logs • /admin/contact",
     summary:
-      "Standardized JSON envelopes, Zod request parsing, and raw-body HMAC verification for Stripe and Resend.",
+      "Delegate day-to-day execution to Manager staff safely while maintaining a complete cryptographic audit trail of sensitive actions.",
     steps: [
-      "All REST endpoints return { success, message, error, data } under /api/v1.",
-      "Configure Resend webhooks to POST /api/v1/webhooks/resend (verified via Svix raw-body HMAC).",
-      "Configure Stripe billing webhooks to POST /api/v1/billing/webhooks/stripe prior to express.json() middleware.",
+      "Invite media buyers and account managers as MANAGER users in /admin/team—they get immediate access to CRM, Funnels, SEO, Outreach, and Campaigns.",
+      "Server-side RBAC automatically blocks Managers from /settings (API Vault), /analytics/deep-dive, and /admin/team.",
+      "Inspect /admin/audit-logs to review chronological records of credential rotations, team changes, deal conversions, and portal previews, or use /admin/contact for dedicated self-hosted deployment.",
     ],
     proTip:
-      "Public published funnels resolve dynamically via GET /api/v1/funnels/public/:funnelId and render with full JSON-LD & OpenGraph SEO tags.",
+      "Audit log entries are append-only and scoped per tenant—giving agency owners enterprise-grade operational accountability.",
   },
 ];
 
 export default function DocsPage() {
+  const [activeCredTab, setActiveCredTab] =
+    useState<CredentialGuideKey>("dev-token");
   const [selectedRole, setSelectedRole] = useState<RoleKey>("ADMIN");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -236,7 +545,7 @@ export default function DocsPage() {
         activeCategory === "All" || mod.category === activeCategory;
       const matchesQuery =
         !q ||
-        `${mod.title} ${mod.summary} ${mod.route} ${mod.steps.join(" ")}`
+        `${mod.title} ${mod.summary} ${mod.route} ${mod.steps.join(" ")} ${mod.proTip}`
           .toLowerCase()
           .includes(q);
       return matchesCat && matchesQuery;
@@ -244,6 +553,9 @@ export default function DocsPage() {
   }, [searchQuery, activeCategory]);
 
   const roleInfo = ROLE_SIMULATOR[selectedRole];
+  const activePlaybook =
+    CREDENTIAL_PLAYBOOKS.find((p) => p.id === activeCredTab) ??
+    CREDENTIAL_PLAYBOOKS[0];
 
   const handleCopy = (text: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -256,40 +568,40 @@ export default function DocsPage() {
   return (
     <MarketingLayout>
       {/* 1. DOCS HERO */}
-      <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-20 overflow-hidden">
+      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 overflow-hidden">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[360px] bg-indigo-500/15 dark:bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="brand" dot className="mb-5">
-            Agency Console Documentation &amp; Interactive Playbook
+            Complete Credentials, Analytics, CRM &amp; Feature Documentation
           </Badge>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-white max-w-4xl mx-auto leading-[1.1]">
-            Everything Your Team Needs to{" "}
+            From API Keys to{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-cyan-500 to-emerald-500 dark:from-indigo-400 dark:via-cyan-300 dark:to-emerald-300">
-              Command OmniPulse
+              Full-Stack Agency Execution
             </span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed">
-            Written for both non-technical agency operators and solutions
-            engineers. Scroll through our interactive 6-stage Console Guide
-            below, test role permissions, or jump directly to any module
-            reference.
+            Step-by-step guides on obtaining your Google Ads Developer Token,
+            creating OAuth Client IDs &amp; Secrets, pulling 3-tier MCC
+            analytics, and operating CRM Kanban, Leads 360°, Funnels, SEO, and
+            Resend Outreach.
           </p>
 
           {/* Quick Jump Pills */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
             {[
-              { label: "1. BYOK Setup", href: "#quickstart" },
-              { label: "2. MCC Sync", href: "#mcc-sync" },
-              { label: "3. Campaign Studio", href: "#campaign-studio" },
-              { label: "4. 400vh+ Funnels", href: "#funnel-studio" },
-              { label: "5. SEO & Outreach", href: "#seo-engine" },
-              { label: "6. Roles & Portals", href: "#role-simulator" },
+              { label: "Developer Token Guide", href: "#credentials-guide" },
+              { label: "OAuth Client ID & Secret", href: "#credentials-guide" },
+              { label: "Pull Analytics Guide", href: "#mcc-sync" },
+              { label: "CRM, Kanban & Leads 360°", href: "#crm-kanban" },
+              { label: "Funnels, SEO & Outreach", href: "#funnel-studio" },
+              { label: "Roles & Audit Logs", href: "#role-simulator" },
             ].map((pill) => (
               <a
-                key={pill.href}
+                key={pill.label}
                 href={pill.href}
                 className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 transition-colors"
               >
@@ -300,10 +612,149 @@ export default function DocsPage() {
         </div>
       </section>
 
-      {/* 2. 480VH STICKY INTERACTIVE CONSOLE GUIDE SCROLL STORY */}
+      {/* 2. STEP-BY-STEP CREDENTIALS & ANALYTICS PULL MASTERCLASS */}
+      <AnimatedSection
+        id="credentials-guide"
+        spacing="py-24"
+        className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-[#0b0d13]"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center mb-10">
+            <Badge variant="success" dot className="mb-3">
+              Step-by-Step Credential &amp; Analytics Playbooks
+            </Badge>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white">
+              How to Get Your Keys &amp; Pull Live Telemetry
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+              Select any guide below for exact click-by-click instructions inside
+              Google Ads Manager, Google Cloud Console, Meta Business Suite,
+              Resend, and OmniPulse.
+            </p>
+          </div>
+
+          {/* 4-Tab Selector */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {CREDENTIAL_PLAYBOOKS.map((item) => {
+              const active = item.id === activeCredTab;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveCredTab(item.id)}
+                  className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all border ${
+                    active
+                      ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/25"
+                      : "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:border-indigo-500/50"
+                  }`}
+                >
+                  {item.tabLabel}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Playbook Card */}
+          <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#11141d] p-6 sm:p-10 shadow-xl">
+            <div className="flex flex-wrap items-start justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="space-y-2 max-w-3xl">
+                <Badge variant="brand">{activePlaybook.badge}</Badge>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white">
+                  {activePlaybook.title}
+                </h3>
+                <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                  {activePlaybook.subtitle}
+                </p>
+              </div>
+              <div className="rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-3.5 py-2 font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                <span className="text-zinc-400 block text-[10px] uppercase">
+                  Console Path
+                </span>
+                {activePlaybook.whereToGet}
+              </div>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left: Numbered Steps */}
+              <ol className="lg:col-span-7 space-y-4">
+                {activePlaybook.steps.map((s, idx) => (
+                  <li
+                    key={s.heading}
+                    className="flex items-start gap-3.5 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white font-mono text-xs font-bold">
+                      0{idx + 1}
+                    </span>
+                    <div className="space-y-1">
+                      <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">
+                        {s.heading}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        {s.detail}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              {/* Right: Key Reference + Verification Box */}
+              <div className="lg:col-span-5 space-y-5">
+                <div className="rounded-2xl border border-zinc-800 bg-[#090c12] p-5 text-zinc-100 space-y-3.5 font-mono text-xs">
+                  <div className="flex items-center gap-2 text-indigo-300 font-bold pb-2 border-b border-zinc-800">
+                    <KeyRound className="w-4 h-4" />
+                    Required Keys &amp; Endpoints
+                  </div>
+                  {activePlaybook.envKeys.map((item) => (
+                    <div
+                      key={item.key}
+                      className="p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-1"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-emerald-300 font-bold break-all">
+                          {item.key}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(item.key)}
+                          className="text-zinc-400 hover:text-white shrink-0"
+                          title="Copy key name"
+                        >
+                          {copiedEndpoint === item.key ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-zinc-400 text-[11px]">
+                        Format: <span className="text-zinc-200">{item.example}</span>
+                      </p>
+                      <p className="text-zinc-500 font-sans text-[11px]">
+                        {item.purpose}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-1.5">
+                  <p className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Verification Check
+                  </p>
+                  <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-200 leading-relaxed">
+                    {activePlaybook.verificationCheck}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AnimatedSection>
+
+      {/* 3. PROTOCOL & REQUEST LIFECYCLE BLUEPRINT SCROLL STORY */}
       <ConsoleGuideScrollStory />
 
-      {/* 3. INTERACTIVE 3-ROLE PERMISSION SIMULATOR */}
+      {/* 4. INTERACTIVE 3-ROLE PERMISSION SIMULATOR */}
       <AnimatedSection
         id="role-simulator"
         spacing="py-24"
@@ -317,9 +768,9 @@ export default function DocsPage() {
             Interactive Role &amp; Access Simulator
           </h2>
           <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
-            Click any role below to inspect exactly what **Admins**, optional
-            **Managers**, and external **Ad Clients** can see and do inside the
-            Agency Console.
+            Click any role below to inspect what Admins, optional Managers, and
+            external Ad Clients can access across CRM, Campaigns, Funnels, and
+            Portals.
           </p>
         </div>
 
@@ -402,7 +853,7 @@ export default function DocsPage() {
         </div>
       </AnimatedSection>
 
-      {/* 4. SEARCHABLE 8-MODULE CONSOLE PLAYBOOK */}
+      {/* 5. SEARCHABLE 13-MODULE CONSOLE PLAYBOOK */}
       <AnimatedSection
         spacing="py-24"
         className="border-t border-zinc-200 dark:border-white/10 bg-zinc-50/50 dark:bg-[#0c0c0e]"
@@ -411,7 +862,7 @@ export default function DocsPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
               <Badge variant="brand" className="mb-3">
-                Complete Feature Reference
+                All 13 Console Modules Documented
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
                 Module-by-Module Operator Guide
@@ -425,7 +876,7 @@ export default function DocsPage() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search funnels, MCC, SEO, Resend…"
+                placeholder="Search CRM, Kanban, leads, token, SEO…"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -435,10 +886,11 @@ export default function DocsPage() {
           <div className="flex flex-wrap gap-2 mb-8">
             {[
               "All",
-              "Onboarding",
+              "Credentials & Setup",
               "Ads & Analytics",
-              "Growth Tools",
-              "Security & API",
+              "CRM & Leads",
+              "Growth Studio",
+              "Governance & Portals",
             ].map((cat) => (
               <button
                 key={cat}
@@ -505,7 +957,7 @@ export default function DocsPage() {
         </div>
       </AnimatedSection>
 
-      {/* 5. DEVELOPER & ARCHITECTURE SUMMARY */}
+      {/* 6. DEVELOPER & ARCHITECTURE SUMMARY */}
       <AnimatedSection spacing="py-24" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-zinc-950 border border-zinc-800 p-8 sm:p-12 text-white grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4">
@@ -514,9 +966,9 @@ export default function DocsPage() {
               Want to Inspect Our Encryption &amp; Tenant Isolation Model?
             </h2>
             <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-              Explore our dedicated Security &amp; Architecture scroll story to
-              see how AES-256-GCM token encryption, PostgreSQL tenant scoping,
-              and Svix webhook verification protect every client account.
+              Explore our dedicated Security &amp; Architecture page to see how
+              AES-256-GCM token encryption, PostgreSQL tenant scoping, immutable
+              audit logs, and Svix webhook verification protect every client.
             </p>
             <div className="pt-2 flex flex-wrap gap-3">
               <Button variant="primary" href="/security">
@@ -534,11 +986,11 @@ export default function DocsPage() {
             {[
               { icon: Lock, label: "Vault Cipher", val: "AES-256-GCM" },
               { icon: Cpu, label: "SEO Queue", val: "Worker Threads" },
-              { icon: Layers, label: "Funnel Engine", val: "400vh+ AST + Blob" },
+              { icon: Layers, label: "CRM + Funnels", val: "Kanban + 400vh AST" },
               { icon: Mail, label: "Outreach", val: "Resend + Svix HMAC" },
               { icon: BarChart3, label: "Ads API", val: "Google v17+ & Meta" },
               { icon: Database, label: "Isolation", val: "Strict tenantId" },
-              { icon: Code2, label: "Validation", val: "Shared Zod Schemas" },
+              { icon: Code2, label: "Audit Trail", val: "Immutable Logs" },
               { icon: Zap, label: "Sync SLA", val: "99.99% Uptime" },
             ].map(({ icon: Icon, label, val }) => (
               <div

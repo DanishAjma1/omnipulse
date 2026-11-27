@@ -35,10 +35,10 @@ export function Footer() {
             </Link>
           </div>
 
-          {/* Platform Links */}
+          {/* Services Links */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200 mb-4">
-              Platform
+              Services
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
@@ -46,7 +46,15 @@ export function Footer() {
                   href="/services"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Google Ads MCC Engine
+                  Google Ads MCC &amp; Analytics
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services#crm-suite"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  CRM, Kanban &amp; Leads 360°
                 </Link>
               </li>
               <li>
@@ -55,14 +63,6 @@ export function Footer() {
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
                   400vh+ Funnel Studio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/docs#rbac-portals"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  Client Portal System
                 </Link>
               </li>
               <li>
@@ -79,39 +79,39 @@ export function Footer() {
           {/* Documentation & Resources */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200 mb-4">
-              Documentation
+              Docs &amp; Guides
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="/docs"
+                  href="/docs#credentials-guide"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 >
-                  Console Operator Guide
+                  Developer Token &amp; OAuth Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/docs#credentials-guide"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  Pull MCC Analytics Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/docs#crm-kanban"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  CRM, Kanban &amp; Tickets Guide
                 </Link>
               </li>
               <li>
                 <Link
                   href="/docs#role-simulator"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  Admin · Manager · Client Roles
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/docs#api-webhooks"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  API &amp; Webhook Reference
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/security#status"
                   className="text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1"
                 >
-                  System Status
+                  Admin · Manager · Client Roles
                   <ArrowUpRight className="w-3 h-3 opacity-60" />
                 </Link>
               </li>
