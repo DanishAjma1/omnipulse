@@ -17,6 +17,7 @@ import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import { AnimatedSection } from "@/components/ui/AnimatedSection";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { contactInquirySchema, extractFieldErrors } from "@/lib/validation";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -27,13 +28,18 @@ export default function ContactPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [submittedTicket, setSubmittedTicket] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      alert("Please fill in all required fields.");
+    setFieldErrors({});
+    setToastMessage(null);
+
+    const parsed = contactInquirySchema.safeParse(formData);
+    if (!parsed.success) {
+      setFieldErrors(extractFieldErrors(parsed.error));
       return;
     }
 
@@ -242,12 +248,18 @@ export default function ContactPage() {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setFormData({ ...formData, name: e.target.value });
+                        setFieldErrors((prev) => ({ ...prev, name: "" }));
+                      }}
                       placeholder="e.g. Alex Rivera"
                       className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 text-sm bg-zinc-50/50 dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                     />
+                    {fieldErrors.name && (
+                      <p className="mt-1.5 text-xs font-medium text-rose-500">
+                        {fieldErrors.name}
+                      </p>
+                    )}
                   </div>
 
                   {/* Email */}
@@ -259,12 +271,18 @@ export default function ContactPage() {
                       type="email"
                       required
                       value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        setFieldErrors((prev) => ({ ...prev, email: "" }));
+                      }}
                       placeholder="alex@agency.com"
                       className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 text-sm bg-zinc-50/50 dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                     />
+                    {fieldErrors.email && (
+                      <p className="mt-1.5 text-xs font-medium text-rose-500">
+                        {fieldErrors.email}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -311,12 +329,18 @@ export default function ContactPage() {
                     rows={5}
                     required
                     value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, message: e.target.value });
+                      setFieldErrors((prev) => ({ ...prev, message: "" }));
+                    }}
                     placeholder="Tell us about your agency's client count, monthly ad spend, and any specific technical requirements..."
                     className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 text-sm bg-zinc-50/50 dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"
                   />
+                  {fieldErrors.message && (
+                    <p className="mt-1.5 text-xs font-medium text-rose-500">
+                      {fieldErrors.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Submit button */}

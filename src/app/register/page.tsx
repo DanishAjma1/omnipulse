@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { z } from "zod";
 import {
   Activity,
   ArrowLeft,
@@ -26,53 +25,12 @@ import {
   postOnboardingApi,
   type OnboardingDraft,
 } from "@/lib/onboarding";
-
-const step2Schema = z
-  .object({
-    fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
-    companyName: z.string().trim().min(2, "Agency / workspace name is required"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Include at least one uppercase letter")
-      .regex(/[a-z]/, "Include at least one lowercase letter")
-      .regex(/[0-9]/, "Include at least one number")
-      .regex(/[^A-Za-z0-9\s]/, "Include at least one special character"),
-    confirmPassword: z.string(),
-    mccId: z
-      .string()
-      .trim()
-      .regex(
-        /^(?:\d{10}|\d{3}-\d{3}-\d{4})$/,
-        "Google Ads MCC ID must be exactly 10 digits (XXX-XXX-XXXX or XXXXXXXXXX)"
-      ),
-    developerToken: z
-      .string()
-      .trim()
-      .min(20, "Google Ads Developer Token must be 20 to 32 characters")
-      .max(32, "Google Ads Developer Token must be 20 to 32 characters")
-      .regex(
-        /^[A-Za-z0-9_-]{20,32}$/,
-        "Developer Token must use only letters, numbers, hyphens, or underscores"
-      )
-      .refine(
-        (v) => /[A-Za-z]/.test(v),
-        "Developer Token must include alphabetic characters"
-      ),
-    geminiApiKey: z
-      .string()
-      .trim()
-      .min(16, "Gemini API Key must be between 16 and 128 characters")
-      .max(128, "Gemini API Key must be between 16 and 128 characters")
-      .regex(
-        /^[A-Za-z0-9_-]{16,128}$/,
-        "Gemini API Key must contain only letters, numbers, hyphens, or underscores"
-      ),
-  })
-  .refine((v) => v.password === v.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
+import {
+  extractFieldErrors,
+  onboardingStep2Schema,
+  otpSendFormSchema,
+  otpVerifyFormSchema,
+} from "@/lib/validation";
 
 function loadSavedDraft(): OnboardingDraft {
   if (typeof window === "undefined") return DEFAULT_ONBOARDING_DRAFT;
@@ -131,12 +89,9 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    const parsed = z
-      .string()
-      .email("Enter a valid work email address")
-      .safeParse(draft.email.trim());
+    const parsed = otpSendFormSchema.safeParse({ email: draft.email });
     if (!parsed.success) {
-      setFieldErrors({ email: parsed.error.issues[0]?.message || "Invalid email" });
+      setFieldErrors(extractFieldErrors(parsed.error));
       return;
     }
 
@@ -150,7 +105,7 @@ export default function RegisterPage() {
         deliveredViaEmail: boolean;
         provider?: "resend" | null;
         devOtpPreview?: string;
-      }>("/onboarding/otp/send", { email: parsed.data });
+      }>("/onboarding/otp/send", { email: parsed.data.email });
 
       // Only expose the hint if Resend is NOT configured; never display a hint when Resend sent the email.
       setDevOtpPreview(!res.deliveredViaEmail && res.devOtpPreview ? res.devOtpPreview : null);
@@ -173,8 +128,13 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    if (!/^\d{6}$/.test(otpCode.trim())) {
-      setFieldErrors({ otpCode: "Enter the 6-digit verification code" });
+    const parsed = otpVerifyFormSchema.safeParse({
+      email: draft.email,
+      code: otpCode,
+    });
+    if (!parsed.success) {
+      const nextErrors = extractFieldErrors(parsed.error);
+      setFieldErrors({ otpCode: nextErrors.code || nextErrors.email || "Enter the 6-digit verification code" });
       return;
     }
 
@@ -185,8 +145,8 @@ export default function RegisterPage() {
         email: string;
         verificationToken: string;
       }>("/onboarding/otp/verify", {
-        email: draft.email.trim(),
-        code: otpCode.trim(),
+        email: parsed.data.email,
+        code: parsed.data.code,
       });
 
       updateDraft({
@@ -208,7 +168,7 @@ export default function RegisterPage() {
     setBannerError(null);
     setFieldErrors({});
 
-    const parsed = step2Schema.safeParse({
+    const parsed = onboardingStep2Schema.safeParse({
       fullName: draft.fullName,
       companyName: draft.companyName,
       password: draft.password,
@@ -219,15 +179,58 @@ export default function RegisterPage() {
     });
 
     if (!parsed.success) {
-      const nextErrors: Record<string, string> = {};
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0] ?? "");
-        if (key && !nextErrors[key]) nextErrors[key] = issue.message;
-      }
-      setFieldErrors(nextErrors);
+      setFieldErrors(extractFieldErrors(parsed.error));
       return;
     }
 
+    updateDraft({ step: 3 });
+  };
+
+  // Step 3A: Initialize Stripe customer & SetupIntent session for chosen tier
+  const handleStartStripeCheckout = async (tier: PlanTier = draft.planTier) => {
+    const step2Check = onboardingStep2Schema.safeParse({
+      fullName: draft.fullName,
+      companyName: draft.companyName,
+      password: draft.password,
+      confirmPassword: draft.confirmPassword,
+      mccId: draft.mccId,
+      developerToken: draft.developerToken,
+    });
+    if (!step2Check.success) {
+      setFieldErrors(extractFieldErrors(step2Check.error));
+      setBannerError(
+        step2Check.error.issues[0]?.message ?? "Review your workspace credentials in Step 2 before payment."
+      );
+      updateDraft({ step: 2 });
+      return;
+    }
+    setBannerError(null);
+    setBusyAction("create_setup");
+    try {
+      const session = await postOnboardingApi<StripeSetupSession>(
+        "/onboarding/stripe/create-setup",
+        {
+          email: draft.email.trim(),
+          fullName: draft.fullName.trim(),
+          companyName: draft.companyName.trim(),
+          planTier: tier,
+          verificationToken: draft.verificationToken,
+        }
+      );
+      setStripeSession(session);
+    } catch (err) {
+      setBannerError(err instanceof Error ? err.message : "Unable to initialize Stripe checkout");
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
+  // Step 3B: Only after Stripe card authorization completes, submit full localStorage payload to backend
+  const handleFinalizeRegistration = async (auth: {
+    customerId: string;
+    setupIntentId: string;
+  }) => {
+    setBannerError(null);
     setBusyAction("register");
     try {
       const result = await postOnboardingApi<{
