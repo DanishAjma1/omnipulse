@@ -24,6 +24,7 @@ import {
   postOnboardingApi,
   type OnboardingDraft,
 } from "@/lib/onboarding";
+import { toFriendlyCredentialMessage } from "@/lib/friendlyError";
 import {
   extractFieldErrors,
   onboardingStep2Schema,
@@ -104,7 +105,7 @@ export default function RegisterPage() {
         expiresInSeconds: number;
         deliveredViaEmail: boolean;
         devOtpPreview?: string;
-      }>("/onboarding/otp/send", { email: parsed.data.email });
+      }>("/onboarding/otp/send", { email: parsed.data.email }, "send_otp");
 
       setDevOtpPreview(
         !res.deliveredViaEmail && res.devOtpPreview ? res.devOtpPreview : null
@@ -116,7 +117,7 @@ export default function RegisterPage() {
         verificationToken: "",
       });
     } catch (err) {
-      setBannerError(err instanceof Error ? err.message : "Failed to send OTP");
+      setBannerError(toFriendlyCredentialMessage(err, "send_otp"));
     } finally {
       setBusyAction(null);
     }
@@ -149,10 +150,14 @@ export default function RegisterPage() {
         verified: boolean;
         email: string;
         verificationToken: string;
-      }>("/onboarding/otp/verify", {
-        email: parsed.data.email,
-        code: parsed.data.code,
-      });
+      }>(
+        "/onboarding/otp/verify",
+        {
+          email: parsed.data.email,
+          code: parsed.data.code,
+        },
+        "verify_otp"
+      );
 
       updateDraft({
         email: res.email,
@@ -161,9 +166,7 @@ export default function RegisterPage() {
         step: 2,
       });
     } catch (err) {
-      setBannerError(
-        err instanceof Error ? err.message : "Invalid verification code"
-      );
+      setBannerError(toFriendlyCredentialMessage(err, "verify_otp"));
     } finally {
       setBusyAction(null);
     }
@@ -195,16 +198,20 @@ export default function RegisterPage() {
         token: string;
         tenant: { name: string };
         consoleLoginUrl: string;
-      }>("/onboarding/register", {
-        email: draft.email.trim(),
-        verificationToken: draft.verificationToken,
-        fullName: parsed.data.fullName.trim(),
-        companyName: parsed.data.companyName.trim(),
-        password: parsed.data.password,
-        mccId: parsed.data.mccId.trim(),
-        developerToken: parsed.data.developerToken.trim(),
-        planTier: "AGENCY_PRO",
-      });
+      }>(
+        "/onboarding/register",
+        {
+          email: draft.email.trim(),
+          verificationToken: draft.verificationToken,
+          fullName: parsed.data.fullName.trim(),
+          companyName: parsed.data.companyName.trim(),
+          password: parsed.data.password,
+          mccId: parsed.data.mccId.trim(),
+          developerToken: parsed.data.developerToken.trim(),
+          planTier: "AGENCY_PRO",
+        },
+        "register"
+      );
 
       window.localStorage.removeItem(ONBOARDING_STORAGE_KEY);
       setCompletionInfo({
@@ -219,9 +226,7 @@ export default function RegisterPage() {
         );
       }, 1500);
     } catch (err) {
-      setBannerError(
-        err instanceof Error ? err.message : "Workspace provisioning failed"
-      );
+      setBannerError(toFriendlyCredentialMessage(err, "register"));
     } finally {
       setBusyAction(null);
     }
@@ -426,7 +431,7 @@ export default function RegisterPage() {
                     >
                       {devOtpPreview && (
                         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-300">
-                          Fallback verification code (Resend unconfigured):{" "}
+                          Verification code:{" "}
                           <strong className="font-mono tracking-widest">
                             {devOtpPreview}
                           </strong>
