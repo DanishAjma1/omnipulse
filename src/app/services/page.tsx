@@ -661,11 +661,11 @@ export default function ServicesPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button variant="primary" size="lg" href="/register">
-              Start 7-Day Free Trial
+              Launch Free Workspace
               <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button variant="secondary" size="lg" href="/pricing">
-              View Pricing
+            <Button variant="secondary" size="lg" href="/contact">
+              Request Full Control
             </Button>
           </div>
         </div>

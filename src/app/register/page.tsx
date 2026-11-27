@@ -8,7 +8,6 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
-  CreditCard,
   Eye,
   EyeOff,
   KeyRound,
@@ -16,18 +15,15 @@ import {
   Lock,
   MailCheck,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { StripeCardCapture } from "@/components/onboarding/StripeCardCapture";
 import {
   DEFAULT_ONBOARDING_DRAFT,
   ONBOARDING_STORAGE_KEY,
-  ONBOARDING_TIERS,
   postOnboardingApi,
   type OnboardingDraft,
-  type PlanTier,
-  type StripeSetupSession,
 } from "@/lib/onboarding";
 import {
   extractFieldErrors,
@@ -42,7 +38,8 @@ function loadSavedDraft(): OnboardingDraft {
     const raw = window.localStorage.getItem(ONBOARDING_STORAGE_KEY);
     if (!raw) return DEFAULT_ONBOARDING_DRAFT;
     const parsed = JSON.parse(raw) as Partial<OnboardingDraft>;
-    return { ...DEFAULT_ONBOARDING_DRAFT, ...parsed };
+    const normalizedStep: 1 | 2 = parsed.step === 2 ? 2 : 1;
+    return { ...DEFAULT_ONBOARDING_DRAFT, ...parsed, step: normalizedStep };
   } catch {
     return DEFAULT_ONBOARDING_DRAFT;
   }
@@ -59,7 +56,6 @@ export default function RegisterPage() {
   const [bannerError, setBannerError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
 
-  const [stripeSession, setStripeSession] = useState<StripeSetupSession | null>(null);
   const [completionInfo, setCompletionInfo] = useState<{
     consoleLoginUrl: string;
     tenantName: string;
@@ -87,7 +83,7 @@ export default function RegisterPage() {
     setBannerError(null);
   };
 
-  // Step 1A: Send 6-digit email OTP
+  // Step 1A: Send 6-digit email OTP via Resend
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setBannerError(null);
@@ -99,6 +95,7 @@ export default function RegisterPage() {
       return;
     }
 
+    setDevOtpPreview(null);
     setBusyAction("send_otp");
     try {
       const res = await postOnboardingApi<{
@@ -106,10 +103,12 @@ export default function RegisterPage() {
         email: string;
         expiresInSeconds: number;
         deliveredViaEmail: boolean;
+        provider?: "resend" | null;
         devOtpPreview?: string;
       }>("/onboarding/otp/send", { email: parsed.data.email });
 
-      setDevOtpPreview(res.devOtpPreview ?? null);
+      // Only expose the hint if Resend is NOT configured; never display a hint when Resend sent the email.
+      setDevOtpPreview(!res.deliveredViaEmail && res.devOtpPreview ? res.devOtpPreview : null);
       updateDraft({
         email: res.email,
         otpSent: true,
@@ -163,8 +162,8 @@ export default function RegisterPage() {
     }
   };
 
-  // Step 2: Persist profile + encrypted-in-flight credentials into localStorage and proceed to Step 3
-  const handleSaveCredentialsStep = (e: React.FormEvent) => {
+  // Step 2: Validate BYOK credentials (MCC ID, Developer Token, Gemini API Key) & provision free multi-tenant workspace
+  const handleCompleteByokRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     setBannerError(null);
     setFieldErrors({});
@@ -176,6 +175,7 @@ export default function RegisterPage() {
       confirmPassword: draft.confirmPassword,
       mccId: draft.mccId,
       developerToken: draft.developerToken,
+      geminiApiKey: draft.geminiApiKey,
     });
 
     if (!parsed.success) {
@@ -233,24 +233,19 @@ export default function RegisterPage() {
     setBannerError(null);
     setBusyAction("register");
     try {
-      const latestDraft = loadSavedDraft();
-      const source = latestDraft.verificationToken ? latestDraft : draft;
-
       const result = await postOnboardingApi<{
         token: string;
         tenant: { name: string };
         consoleLoginUrl: string;
       }>("/onboarding/register", {
-        email: source.email.trim(),
-        verificationToken: source.verificationToken,
-        fullName: source.fullName.trim(),
-        companyName: source.companyName.trim(),
-        password: source.password,
-        mccId: source.mccId.trim(),
-        developerToken: source.developerToken.trim(),
-        planTier: source.planTier,
-        stripeCustomerId: auth.customerId,
-        stripeSetupIntentId: auth.setupIntentId,
+        email: draft.email.trim(),
+        verificationToken: draft.verificationToken,
+        fullName: parsed.data.fullName,
+        companyName: parsed.data.companyName,
+        password: parsed.data.password,
+        mccId: parsed.data.mccId,
+        developerToken: parsed.data.developerToken,
+        geminiApiKey: parsed.data.geminiApiKey,
       });
 
       window.localStorage.removeItem(ONBOARDING_STORAGE_KEY);
@@ -270,9 +265,8 @@ export default function RegisterPage() {
   };
 
   const stepsMeta = [
-    { num: 1 as const, label: "Email OTP" },
-    { num: 2 as const, label: "Credentials" },
-    { num: 3 as const, label: "Plan & Stripe" },
+    { num: 1 as const, label: "1. Email OTP (Resend)" },
+    { num: 2 as const, label: "2. BYOK Credentials" },
   ];
 
   return (
@@ -297,23 +291,24 @@ export default function RegisterPage() {
               dot
               className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
             >
-              Multi-Tenant SaaS Onboarding
+              Free BYOK Multi-Tenant SaaS
             </Badge>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-              Launch Your Isolated Agency Workspace.
+              Launch Your Isolated Agency Workspace — Free Forever.
             </h1>
             <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-              Your Google Ads Developer Token &amp; OAuth credentials are encrypted
-              with AES-256-GCM at rest and strictly bound to your organization tenant.
+              Bring your own Google Ads Developer Token, MCC Account ID, and Google
+              Gemini API Key. All credentials are encrypted with AES-256-GCM at rest
+              and strictly scoped to your tenant.
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
             {[
-              "Dedicated tenant isolation at the database & API boundary",
-              "AES-256-GCM encrypted Google Ads Developer Token vault",
-              "14-day full-platform free trial — cancel anytime before billing",
-              "Direct console provisioning after Stripe card authorization",
+              "100% Free BYOK Workspace — No credit card or Stripe subscription required",
+              "AES-256-GCM encrypted Google Ads Developer Token & Gemini API Key vault",
+              "Includes 5 Google Ads clients, 5 live funnels/month, 5 SEO websites/week",
+              "Want uncapped capacity or self-hosted ownership? Contact Support to Take Full Control",
             ].map((feat, idx) => (
               <div key={idx} className="flex items-center gap-3 text-sm text-zinc-300">
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
@@ -332,7 +327,7 @@ export default function RegisterPage() {
             </div>
             <div className="text-xs">
               <p className="font-semibold text-white">Zero-Knowledge Credential Vault</p>
-              <p className="text-zinc-400">Stripe PCI-DSS + AES-256-GCM Encryption</p>
+              <p className="text-zinc-400">AES-256-GCM Encryption · Strict Tenant Isolation</p>
             </div>
           </div>
           <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -351,7 +346,7 @@ export default function RegisterPage() {
                 {completionInfo.tenantName} Is Live!
               </h2>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Your 14-day trial is active and Google Ads credentials are encrypted.
+                Your BYOK Google Ads and Gemini API keys are encrypted at rest.
                 Redirecting you to the Agency Console login...
               </p>
               <div className="pt-2">
@@ -372,7 +367,7 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    Create Your Workspace
+                    Create Your Free Workspace
                   </h2>
                   <Link
                     href="http://localhost:5173/login"
@@ -382,14 +377,14 @@ export default function RegisterPage() {
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   {stepsMeta.map((s) => {
                     const active = draft.step === s.num;
                     const done = draft.step > s.num;
                     return (
                       <div
                         key={s.num}
-                        className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+                        className={`flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold transition-colors ${
                           active
                             ? "border-indigo-500 bg-indigo-500/10 text-indigo-500 dark:text-indigo-300"
                             : done
@@ -451,10 +446,20 @@ export default function RegisterPage() {
                   </form>
 
                   {draft.otpSent && (
-                    <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60">
-                      {devOtpPreview && (
+                    <form
+                      onSubmit={handleVerifyOtp}
+                      className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60"
+                    >
+                      {devOtpPreview ? (
                         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-300">
-                          Development preview OTP code: <strong className="font-mono tracking-widest">{devOtpPreview}</strong>
+                          Resend is not configured — verification code hint:{" "}
+                          <strong className="font-mono tracking-widest">{devOtpPreview}</strong>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
+                          Verification code sent to{" "}
+                          <strong className="font-mono">{draft.email}</strong>. Check your inbox
+                          for the 6-digit code.
                         </div>
                       )}
                       <div>
@@ -466,7 +471,9 @@ export default function RegisterPage() {
                           inputMode="numeric"
                           maxLength={6}
                           value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                          onChange={(e) =>
+                            setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                          }
                           placeholder="123456"
                           className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-lg tracking-[0.4em] text-center focus:border-indigo-500 focus:outline-none"
                         />
@@ -496,9 +503,9 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              {/* STEP 2: USER PROFILE & GOOGLE ADS CREDENTIALS */}
+              {/* STEP 2: USER PROFILE & BYOK CREDENTIALS (MCC ID, DEVELOPER TOKEN, GEMINI API KEY) */}
               {draft.step === 2 && (
-                <form onSubmit={handleSaveCredentialsStep} className="space-y-4">
+                <form onSubmit={handleCompleteByokRegistration} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1.5">
@@ -543,7 +550,7 @@ export default function RegisterPage() {
                           type={showPassword ? "text" : "password"}
                           value={draft.password}
                           onChange={(e) => updateDraft({ password: e.target.value })}
-                          placeholder="Min 8 chars, upper & number"
+                          placeholder="Min 8 chars, upper, number & symbol"
                           className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm focus:border-indigo-500 focus:outline-none"
                         />
                         <button
@@ -551,7 +558,11 @@ export default function RegisterPage() {
                           onClick={() => setShowPassword((v) => !v)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                       {fieldErrors.password && (
@@ -579,7 +590,7 @@ export default function RegisterPage() {
                   <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 space-y-3 bg-zinc-50 dark:bg-zinc-950/60">
                     <div className="flex items-center gap-2 text-xs font-semibold text-indigo-500 dark:text-indigo-400">
                       <KeyRound className="w-4 h-4" />
-                      Google Ads API Tenant Configuration
+                      BYOK API Credentials (AES-256-GCM Encrypted at Rest)
                     </div>
 
                     <div>
@@ -606,11 +617,28 @@ export default function RegisterPage() {
                         type="password"
                         value={draft.developerToken}
                         onChange={(e) => updateDraft({ developerToken: e.target.value })}
-                        placeholder="Your Google Ads API developer token"
+                        placeholder="20–32 char Google Ads API developer token"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       {fieldErrors.developerToken && (
                         <p className="mt-1 text-xs text-rose-500">{fieldErrors.developerToken}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>Google Gemini API Key</span>
+                      </label>
+                      <input
+                        type="password"
+                        value={draft.geminiApiKey}
+                        onChange={(e) => updateDraft({ geminiApiKey: e.target.value })}
+                        placeholder="AIzaSy... (your Google AI Studio Gemini API Key)"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+                      />
+                      {fieldErrors.geminiApiKey && (
+                        <p className="mt-1 text-xs text-rose-500">{fieldErrors.geminiApiKey}</p>
                       )}
                     </div>
                   </div>
@@ -624,121 +652,27 @@ export default function RegisterPage() {
                       <ArrowLeft className="w-4 h-4" />
                       Back
                     </Button>
-                    <Button type="submit" variant="primary" size="lg" className="flex-1 justify-center">
-                      Continue to Plan &amp; Billing
-                      <ArrowRight className="w-4 h-4" />
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      disabled={busyAction === "register"}
+                      className="flex-1 justify-center"
+                    >
+                      {busyAction === "register" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Encrypting &amp; Provisioning Workspace...
+                        </>
+                      ) : (
+                        <>
+                          Launch Free Workspace
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
-              )}
-
-              {/* STEP 3: PLAN SELECTION & STRIPE CHECKOUT */}
-              {draft.step === 3 && (
-                <div className="space-y-5">
-                  <div className="grid sm:grid-cols-3 gap-3">
-                    {ONBOARDING_TIERS.map((tier) => {
-                      const selected = draft.planTier === tier.id;
-                      return (
-                        <button
-                          key={tier.id}
-                          type="button"
-                          onClick={() => {
-                            updateDraft({ planTier: tier.id });
-                            setStripeSession(null);
-                          }}
-                          className={`text-left rounded-2xl border p-4 transition-all ${
-                            selected
-                              ? "border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500"
-                              : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-sm font-bold">{tier.name}</span>
-                            {tier.badge && (
-                              <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                                Popular
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 text-2xl font-extrabold">
-                            ${tier.monthlyPrice}
-                            <span className="text-xs font-normal text-zinc-500">/mo</span>
-                          </p>
-                          <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-                            {tier.tagline}
-                          </p>
-                          <ul className="mt-3 space-y-1 text-[11px] text-zinc-600 dark:text-zinc-300">
-                            {tier.highlights.map((h) => (
-                              <li key={h} className="flex items-center gap-1.5">
-                                <Check className="w-3 h-3 text-emerald-400 shrink-0" />
-                                <span>{h}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {!stripeSession ? (
-                    <div className="flex items-center justify-between gap-3 pt-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => updateDraft({ step: 2 })}
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        size="lg"
-                        disabled={busyAction === "create_setup"}
-                        onClick={() => handleStartStripeCheckout(draft.planTier)}
-                        className="flex-1 justify-center"
-                      >
-                        {busyAction === "create_setup" ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Preparing Stripe Checkout...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4" />
-                            Continue to Stripe Card Authorization
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 bg-zinc-50 dark:bg-zinc-950/60">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold">
-                          Payment Method ({draft.planTier.replace("_", " ")})
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStripeSession(null);
-                            updateDraft({ step: 2 });
-                          }}
-                          className="text-xs text-zinc-400 hover:text-zinc-200"
-                        >
-                          Edit Credentials
-                        </button>
-                      </div>
-
-                      <StripeCardCapture
-                        session={stripeSession}
-                        email={draft.email}
-                        fullName={draft.fullName}
-                        isProvisioning={busyAction === "register"}
-                        onAuthorized={handleFinalizeRegistration}
-                      />
-                    </div>
-                  )}
-                </div>
               )}
             </>
           )}

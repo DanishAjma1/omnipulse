@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Start Your 7-Day Free Trial • Multi-Tenant Workspace Provisioning",
+  title: "Launch Your Free BYOK Workspace • Multi-Tenant Workspace Provisioning",
   description:
-    "Launch your isolated OmniPulse workspace in minutes. Start with our 7-day Starter free trial backed by AES-256-GCM Google Ads Developer Token encryption and instant white-label provisioning.",
+    "Launch your free isolated OmniPulse workspace in minutes. Bring your own Google Ads MCC, Developer Token, and Gemini API key with AES-256-GCM encryption and instant tenant isolation.",
   openGraph: {
     type: "website",
     url: "https://omnipulse.io/register",
     siteName: "OmniPulse",
-    title: "Register on OmniPulse • Launch Your Marketing Operations Workspace",
+    title: "Register on OmniPulse • Launch Your Free Marketing Operations Workspace",
     description:
-      "Verify your work email, encrypt your Google Ads MCC credentials, and activate your 7-day free trial on the Starter plan.",
+      "Verify your work email, encrypt your Google Ads & Gemini BYOK credentials, and launch your free multi-tenant workspace.",
   },
 };
 

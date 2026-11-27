@@ -17,6 +17,7 @@ export interface PricingCardProps {
   badge?: string;
   ctaText?: string;
   ctaHref?: string;
+  ctaSubtext?: string;
   className?: string;
 }
 
@@ -31,18 +32,19 @@ export function PricingCard({
   badge,
   ctaText = "Get Started",
   ctaHref = "/register",
+  ctaSubtext,
   className,
 }: PricingCardProps) {
   const price = isAnnual ? annualPrice : monthlyPrice;
 
   return (
     <motion.div
-      whileHover={{ scale: 0.98 }}
+      whileHover={{ scale: highlighted ? 1.06 : 1.01 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
         "relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300",
         highlighted
-          ? "bg-gradient-to-b from-indigo-950/30 via-zinc-900 to-zinc-950 border-2 border-indigo-500/80 shadow-[0_0_45px_rgba(99,102,241,0.22)] lg:-translate-y-2 dark:from-indigo-950/40"
+          ? "scale-105 z-10 bg-gradient-to-b from-indigo-950/35 via-zinc-900 to-zinc-950 border-2 border-indigo-500 shadow-[0_0_50px_rgba(99,102,241,0.35)] text-white dark:from-indigo-950/50"
           : "bg-white dark:bg-[#111113] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700",
         className
       )}
@@ -121,6 +123,11 @@ export function PricingCard({
         >
           {ctaText}
         </Button>
+        {ctaSubtext && (
+          <p className="mt-2.5 text-center text-xs font-medium text-indigo-500 dark:text-indigo-400">
+            {ctaSubtext}
+          </p>
+        )}
       </div>
     </motion.div>
   );
